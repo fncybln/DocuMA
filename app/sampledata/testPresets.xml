@@ -1,0 +1,15 @@
+<presets>
+    <preset>
+        <preset_id>2</preset_id>
+        <preset_name>Preset1Name</preset_name>
+        <preset_info>Preset Info TExt</preset_info>
+        <preset_content>
+            <all_picture_name>img1.png</all_picture_name>
+            <fix_chan>
+                <fix>1</fix>
+                <chan>2</chan>
+                <ind_picture_name>img1_1</ind_picture_name>
+            </fix_chan>
+        </preset_content>
+    </preset>
+</presets>

@@ -1,0 +1,44 @@
+<root>
+
+
+    <presets>
+        <preset>
+            <id></id>
+            <preset_id></preset_id>
+            <preset_name></preset_name>
+            <preset_info></preset_info>
+            <preset_content>
+                <all_picture_name></all_picture_name>
+                <fix_chan>
+                    <fix></fix>
+                    <chan></chan>
+                    <ind_picture_name></ind_picture_name>
+                </fix_chan>
+            </preset_content>
+        </preset>
+    </presets>
+
+
+    <fixture>
+        <ids>
+            <fix_id></fix_id>
+            <chan_id></chan_id>
+        </ids>
+        <type_id></type_id>
+
+        <note></note>
+        <patch>
+            <adr></adr>
+            <univ></univ>
+        </patch>
+    </fixture>
+
+
+    <fix_type>
+        <type_id></type_id>
+        <type_name></type_name>
+        <type_img></type_img>
+    </fix_type>
+
+
+</root>
