@@ -1,5 +1,6 @@
 package com.theatretools.documa
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -14,10 +15,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.content.ContextCompat
 import com.theatretools.documa.ui.theme.DocuMATheme
 
 class ImportActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContent {
             DocuMATheme {
@@ -26,7 +30,7 @@ class ImportActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    importButton()
+                    importButton(this)
                 }
             }
         }
@@ -34,13 +38,15 @@ class ImportActivity : ComponentActivity() {
 }
 
 @Composable
-fun importButton() {
+fun importButton(context: Context) {
     Button(onClick = {}) {
         Text("Import aus individuellen Preset-Xmls")
     }
 }
 
-fun openDirectory(pickerInitialUri: Uri, requestcode: Int) {
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {}
+fun openDirectory(context: Context) {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+
+    ContextCompat.startActivity(context, intent, null)
 
 }

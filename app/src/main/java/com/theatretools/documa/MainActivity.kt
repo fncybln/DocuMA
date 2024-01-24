@@ -1,5 +1,6 @@
 package com.theatretools.documa
 
+import android.content.Context
 import android.content.Intent
 
 import android.net.Uri
@@ -15,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat.startActivity
 import com.theatretools.documa.ui.theme.DocuMATheme
 
 class MainActivity : ComponentActivity() {
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    photoButton(context = this)
                 }
             }
         }
@@ -34,14 +37,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun photoButton() {
-    Button(onClick = {capturePhoto("testImage", )})
+fun photoButton(context: Context) {
+    Button(onClick = {capturePhoto(context)}){Text("Button")}
 
 }
 
-fun capturePhoto(targetFilename: String, locationForPhotos: String){
-    val intent: Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.apply{
-        putExtra(MediaStore.EXTRA_OUTPUT, Uri.withAppendedPath(locationForPhotos, targetFilename))
-    }
+fun capturePhoto(context: Context){
+    val intent = Intent("com.theatretools.documa.ImportActivity")
+
+    context.startActivity(intent)
 }
