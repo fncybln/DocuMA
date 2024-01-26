@@ -10,6 +10,7 @@
             <preset_content>
                 <all_picture_name></all_picture_name>
                 <fix_chan>
+                    <fc_id></fc_id>
                     <fix></fix>
                     <chan></chan>
                     <ind_picture_name></ind_picture_name>

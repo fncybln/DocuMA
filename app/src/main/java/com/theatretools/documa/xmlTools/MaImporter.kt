@@ -1,23 +1,22 @@
 package com.theatretools.documa.xmlTools
 
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
+import com.theatretools.documa.dataobjects.IdHandler
 import com.theatretools.documa.dataobjects.PresetItem
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.net.URI
+import java.io.InputStream
 
-class MaImporter (uri: Uri, ) {
-    init {
 
-    }
+// repository class for parsing .maExportCompressed.xml XML file and turn them into Data Objects.
+// Should be deprecated soon and shifted to server side when server support
+class MaImporter(var uri: Uri, var idHandler: IdHandler) {
 
-    suspend fun parseXml(context: Context, returnedIntent: Intent): Result<List<PresetItem>>{
+
+
+    fun parseXml(filename: Uri): Result<List<PresetItem>>{
         val result: Result<List<PresetItem>>
-        return withContext(Dispatchers.IO){
-            returnedIntent
-        }
+        var presetReadout = PresetReadout(idHandler)
+
+        presetReadout.parse(openInputStream())
     }
 
 }
