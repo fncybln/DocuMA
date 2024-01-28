@@ -1,9 +1,12 @@
 package com.theatretools.documa.xmlTools
 
+import android.content.Context
 import android.net.Uri
 import com.theatretools.documa.dataobjects.IdHandler
 import com.theatretools.documa.dataobjects.PresetItem
-import java.io.InputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.FileInputStream
 
 
 // repository class for parsing .maExportCompressed.xml XML file and turn them into Data Objects.
@@ -12,11 +15,13 @@ class MaImporter(var uri: Uri, var idHandler: IdHandler) {
 
 
 
-    fun parseXml(filename: Uri): Result<List<PresetItem>>{
+    suspend fun parseXml():List<PresetItem>{
         val result: Result<List<PresetItem>>
         var presetReadout = PresetReadout(idHandler)
 
-        presetReadout.parse(openInputStream())
+        return withContext(Dispatchers.IO) {
+            presetReadout.parse(FileInputStream(uri.toString()))
+        }
     }
 
 }

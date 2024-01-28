@@ -1,0 +1,50 @@
+<presets>
+    <preset>
+        <id>1</id>
+        <preset_id>1</preset_id>
+        <preset_name>First preset</preset_name>
+        <preset_info>Preset Info</preset_info>
+        <preset_content>
+            <all_picture_name>Picture1.pmg</all_picture_name>
+            <fix_chan>
+                <fc_id></fc_id>
+                <fix>1</fix>
+                <chan>1</chan>
+                <ind_picture_name>pic1_1.png</ind_picture_name>
+            </fix_chan>
+            <fix_chan>
+                <fc_id></fc_id>
+                <fix>2</fix>
+                <chan>2</chan>
+                <ind_picture_name>pic1_2.png</ind_picture_name>
+            </fix_chan>
+        </preset_content>
+    </preset>
+    <preset>
+        <id></id>
+        <preset_id>2</preset_id>
+        <preset_name>second Preset</preset_name>
+        <preset_info>Preset 2 Info</preset_info>
+        <preset_content>
+            <all_picture_name>Picture2.png</all_picture_name>
+            <fix_chan>
+                <fc_id></fc_id>
+                <fix>1</fix>
+                <chan>1</chan>
+                <ind_picture_name>pic1_1.png</ind_picture_name>
+            </fix_chan>
+            <fix_chan>
+                <fc_id></fc_id>
+                <fix>2</fix>
+                <chan>2</chan>
+                <ind_picture_name>pic1_2.png</ind_picture_name>
+            </fix_chan>
+            <fix_chan>
+                <fc_id></fc_id>
+                <fix>3</fix>
+                <chan>3</chan>
+                <ind_picture_name>pic1_2.png</ind_picture_name>
+            </fix_chan>
+        </preset_content>
+    </preset>
+</presets>

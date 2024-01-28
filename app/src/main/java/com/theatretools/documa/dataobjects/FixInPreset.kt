@@ -4,10 +4,10 @@ class FixInPreset(
     ID: Int?,
     FIX: Int?,
     CHAN: Int?,
-    inPicName: String? //TODO: what kind of object to use for picture reference??
+    inPicName: String?, //TODO: what kind of object to use for picture reference??
     idHandler: IdHandler
 ) {
-    private var id = ID
+    var id = ID
     var fix = FIX
     var chan = CHAN
     var picName = inPicName
@@ -20,6 +20,12 @@ class FixInPreset(
                 id= idHandler.newId()
 
             }
+        }
+    }
+
+    fun FixInPreset?.toString(): String{
+        return if (this != null) {"null"} else{
+            "ID: $id | fix: $fix | chan: $chan | picName: $picName"
         }
     }
 
