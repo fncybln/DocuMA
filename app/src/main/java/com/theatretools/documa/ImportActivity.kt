@@ -19,9 +19,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.FragmentContainer
 import com.theatretools.documa.ui.theme.DocuMATheme
 import java.lang.NullPointerException
 
@@ -42,10 +44,7 @@ class ImportActivity : FragmentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Button(onClick = { docActivityResult.launch(null)}) {
-                        Text("Import aus individuellen Preset-Xmls")
-                    }
-                    Text(resultText?:"null")
+                    AndroidView
                 }
             }
         }
@@ -60,6 +59,12 @@ class ImportActivity : FragmentActivity() {
     fun openDirectory(context: Context) {
         docActivityResult.launch(null)
     }
+
+}
+
+@Composable
+fun FragmentInCompose() {
+    
 
 }
 
