@@ -36,7 +36,7 @@ class ImportActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        observer = AppLifecycleObserver(require .activityResultRegistry)
+        //observer = AppLifecycleObserver(require .activityResultRegistry)
         setContent {
             DocuMATheme {
                 // A surface container using the 'background' color from the theme
@@ -44,20 +44,20 @@ class ImportActivity : FragmentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AndroidView
+                    //AndroidView
                 }
             }
         }
     }
 
 
-    private val docActivityResult =
-        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()){uri ->
-            resultText = uri.toString()
-            Log.i("Info","ActivityResult got called")
-        }
+    //private val docActivityResult =
+        //registerForActivityResult(ActivityResultContracts.OpenDocumentTree()){uri ->
+        //    resultText = uri.toString()
+        //    Log.i("Info","ActivityResult got called")
+        //}
     fun openDirectory(context: Context) {
-        docActivityResult.launch(null)
+        //docActivityResult.launch(null)
     }
 
 }

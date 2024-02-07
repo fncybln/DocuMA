@@ -11,8 +11,8 @@ class AppLifecycleObserver(private val registry: LifecycleRegistry) :DefaultLife
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        A
 
-        }
+
+
     }
 }
