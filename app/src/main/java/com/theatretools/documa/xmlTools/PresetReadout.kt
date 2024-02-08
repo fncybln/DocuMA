@@ -146,7 +146,7 @@ class PresetReadout (
                 throw NumberFormatException("<fc_id>, <fix> or <chan> tag doesn't contain an Int")
             }
 
-            list?.add(DeviceInPreset(fcId, null, fix, chan, ind_picture_name))
+            //list?.add(DeviceInPreset(null, )) //TODO
 
             parser.next()
 

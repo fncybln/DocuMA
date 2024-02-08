@@ -12,4 +12,8 @@ class Device (
     var deviceName: String?
 )
 {
+    fun getFixChan(): String {//TODO: Welche reihenfolge hat die fix:chan anzeige?
+        return if(fix == chan) fix.toString()
+        else "${fix?:"-"} : ${chan?:"-"}"
+    }
 }

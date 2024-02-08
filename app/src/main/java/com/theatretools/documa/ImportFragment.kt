@@ -20,10 +20,7 @@ class ImportFragment : Fragment() {
     ): View?{
         return ComposeView(requireContext()).apply{
             setContent {
-                Button(onClick = { }) {
-                    Text("Import aus individuellen Preset-Xmls")
-                }
-                Text("null")
+
             }
         }
     }

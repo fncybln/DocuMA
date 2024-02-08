@@ -1,6 +1,7 @@
 package com.theatretools.documa.dataobjects
 
 import android.net.Uri
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -15,6 +16,7 @@ class PresetItem (
     var presetInfo: String?,
     var allPictureName: String?,
     //var presetContent: List<FixInPreset>?,
+    //TODO: PresetType?
 ){
 
 
