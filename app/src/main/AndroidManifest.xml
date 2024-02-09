@@ -14,7 +14,7 @@
         android:theme="@style/Theme.DocuMA"
         tools:targetApi="31">
         <activity
-            android:name=".AddPresetActivity"
+            android:name=".activities.AddPresetActivity"
             android:exported="false"
             android:label="@string/title_activity_add_preset"
             android:theme="@style/Theme.DocuMA" />
@@ -30,8 +30,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ImportActivity"
-            android:exported="false"></activity>
+            android:name="ImportActivity"
+            android:exported="false">
+
+        </activity>
+        <activity android:name=".activities.EditPresetActivity"
+            android:exported="false">
+
+        </activity>
     </application>
 
 </manifest>

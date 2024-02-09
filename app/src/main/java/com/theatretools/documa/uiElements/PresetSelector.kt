@@ -30,11 +30,11 @@ import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.PresetItem
 
 @Composable
-fun PresetSelector(modifier: Modifier, viewModel: AppViewModel, lifecycleOwner: LifecycleOwner) {
+fun PresetSelector(modifier: Modifier, viewModel: AppViewModel, lifecycleOwner: LifecycleOwner, action :(presetItem: PresetItem) -> Unit) {
 
     var list: List<PresetItem>? = null
     val presetObserver = Observer<List<PresetItem>>{list = it}
-    val data = viewModel.AllPresetItems.observe(lifecycleOwner, presetObserver)
+    viewModel.AllPresetItems.observe(lifecycleOwner, presetObserver) //????
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -47,7 +47,7 @@ fun PresetSelector(modifier: Modifier, viewModel: AppViewModel, lifecycleOwner: 
             for(preset in list!!) {
                 item (key = preset.id) {
                     PresetSelectionItem(
-                        preset
+                        preset, action
 
                     )
 
@@ -60,8 +60,8 @@ fun PresetSelector(modifier: Modifier, viewModel: AppViewModel, lifecycleOwner: 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PresetSelectionItem(presetItem: PresetItem) {
-    Card(onClick = { /*TODO*/ },
+fun PresetSelectionItem(presetItem: PresetItem, action: (presetItem: PresetItem)->Unit) {
+    Card(onClick = { action(presetItem) },
         modifier = Modifier.width(180.dp)
     ) {
         Column {

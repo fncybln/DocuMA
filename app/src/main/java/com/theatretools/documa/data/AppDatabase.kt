@@ -35,6 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
                 context.applicationContext,
                 AppDatabase::class.java, "App.db"
             )
+                .allowMainThreadQueries()
                 //.createFromAsset("database/sample.db") //TODO: Error handling
                 .build()
     }

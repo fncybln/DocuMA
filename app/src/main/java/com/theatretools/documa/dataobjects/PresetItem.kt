@@ -24,10 +24,8 @@ class PresetItem (
 
     }
 
-    fun PresetItem?.toString():String{
-        return if (this!= null){
-            "null"
-        } else "ID: $id | PrsID: $presetID | Name:$presetName \n Info: $presetInfo \n AllPictureName: $allPictureName"
+    override fun toString():String{
+        return "ID: $id | PrsID: $presetID | Name:$presetName \n Info: $presetInfo \n AllPictureName: $allPictureName"
     }
 
 }

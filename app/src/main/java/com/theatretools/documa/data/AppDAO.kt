@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
@@ -28,9 +29,14 @@ interface AppDAO {
     @Query("SELECT * FROM Device WHERE (SELECT deviceId FROM DeviceInPreset WHERE deviceId = :id)")
     fun loadAllDevicesWherePresetId(id: Int): Flow<List<Device>>
 
+    @Query("SELECT * FROM preset_items WHERE id = :id LIMIT 1")
+    fun getPresetItemByID(id: Int): PresetItem
+
+    @Update(onConflict = OnConflictStrategy.ABORT)
+    fun updatePreset(presetItem: PresetItem): Int
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPreset(vararg preset: PresetItem)
+    suspend fun insertPreset(vararg preset: PresetItem)
     @Delete
-    fun deletePreset(vararg preset: PresetItem)
+    suspend fun deletePreset(vararg preset: PresetItem)
 
 }
