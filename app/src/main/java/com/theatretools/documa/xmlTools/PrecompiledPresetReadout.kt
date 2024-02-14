@@ -9,7 +9,7 @@ import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.io.InputStream
 
-class PresetReadout (
+class PrecompiledPresetReadout (
 
 ) {
 
@@ -20,7 +20,7 @@ class PresetReadout (
     @Throws(XmlPullParserException::class, IOException::class)
     fun parse(inputStream: InputStream): List<PresetItem> {
         inputStream.use { inputStream ->
-            val parser: XmlPullParser = Xml.newPullParser()
+            val parser: XmlPullParser = Xml.newPullParser() //TODO: Factory?
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(inputStream, null)
             parser.nextTag()

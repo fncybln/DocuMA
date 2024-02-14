@@ -1,12 +1,15 @@
 package com.theatretools.documa.uiElements
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -18,13 +21,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.theatretools.documa.R
 import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
 
@@ -37,21 +44,31 @@ class PresetEditorConstants{
 }
 
 @Composable
-fun PresetEditor(mode: Int, presetItem: PresetItem?, devInPre: List<DeviceInPreset>?, callback : (presetItem: PresetItem, devicesInPreset: List<DeviceInPreset>? ) -> Unit ) {
-    var presetID by remember { mutableStateOf(1.toString()) }
-    var presetName by remember { mutableStateOf("name") }
-    var presetInfo by remember { mutableStateOf("info") }
-    var deviceId by remember { mutableStateOf(1.toString()) }
+fun PresetEditor(
+    mode: Int,
+    presetItem: PresetItem?,
+    devInPre: List<DeviceInPreset>?,
+    callback : (
+        presetItem: PresetItem,
+        devicesInPreset: List<DeviceInPreset>? ) -> Unit ,
+    addImageCallback:() -> Unit)
 
-    if (mode == PresetEditorConstants.EDIT){
-        presetID = presetItem?.presetID.toString()
-        presetName = presetItem?.presetName?:"name"
-        presetInfo = presetItem?.presetInfo?:"info"
+{
+
+
+    var presetID by remember { mutableStateOf(presetItem?.presetID.toString()) }
+    var presetName by remember { mutableStateOf(presetItem?.presetName) }
+    var presetInfo by remember { mutableStateOf(presetItem?.presetInfo) }
+    var deviceId by remember { mutableStateOf(1.toString()) }
+    if (mode == PresetEditorConstants.ADD){
+        presetID = 1.toString()
+        presetName = "Name"
+        presetInfo = "Info"
         deviceId = 1.toString()
     }
 
     fun returnCallback(){
-        var returnPresetItem = PresetItem(presetItem?.id, presetID.toIntOrNull(), presetName, presetInfo, "idk")
+        var returnPresetItem = PresetItem(presetItem?.id, presetID.toIntOrNull(), presetName, presetInfo, null)
         //TODO: Implement DeviceInPreset functionality
         var returnDevInPre = listOf(DeviceInPreset(null, null,1, "name"))
         callback(returnPresetItem, returnDevInPre)
@@ -97,7 +114,33 @@ fun PresetEditor(mode: Int, presetItem: PresetItem?, devInPre: List<DeviceInPres
             keyboardOptions = KeyboardOptions( keyboardType = KeyboardType.Number,),
             enabled = false
         )
-        IconButton( modifier = Modifier.align(Alignment.End).padding(20.dp),onClick = {
+        if (presetItem != null) {
+            Log.v("presetEditor", "presetItem is not null")
+            if (presetItem.allPictureUri != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(Uri.parse(presetItem.allPictureUri))
+                        .placeholder(R.drawable.picnotfound) //TODO: load image
+                        .build(),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(150.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
+        IconButton(modifier = Modifier
+            .padding(20.dp),
+            onClick ={ addImageCallback() } ){
+            Icon(Icons.Filled.Create, contentDescription = null)
+            Text(text = AnnotatedString("Choose Picture"))
+        }
+        
+        IconButton( modifier = Modifier
+            .align(Alignment.End)
+            .padding(20.dp),onClick = {
             returnCallback()
         }) {
             Icon(Icons.Filled.CheckCircle, contentDescription = null)
@@ -105,3 +148,4 @@ fun PresetEditor(mode: Int, presetItem: PresetItem?, devInPre: List<DeviceInPres
         }
     }
 }
+

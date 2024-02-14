@@ -1,5 +1,7 @@
 package com.theatretools.documa.uiElements
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,9 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -17,13 +21,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ErrorResult
+import coil.request.ImageRequest
 import com.theatretools.documa.R
 import com.theatretools.documa.data.AppViewModel
 import com.theatretools.documa.dataobjects.Device
@@ -65,13 +75,38 @@ fun PresetSelectionItem(presetItem: PresetItem, action: (presetItem: PresetItem)
         modifier = Modifier.width(180.dp)
     ) {
         Column {
-            Image(
-                painter = painterResource(id = R.drawable.dummy_preset_pic/*TODO*/),
-                contentDescription = null,
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.height(80.dp)
-            )
+            if (presetItem.allPictureUri != null) {
+                var imgReq = ImageRequest.Builder(LocalContext.current)
+                    .data(/*"android.resource://com.theatretools.documa/"+R.drawable.dummy_preset_pic*/presetItem.allPictureUri)
+                    .placeholder(R.drawable.picnotfound) //TODO: load image
+                    .error(R.drawable.dummy_deviceimg)
+                    .listener(onError = {a, errorResult -> Log.e("ImageRequest", errorResult.throwable.toString())})
+                    .build()
+                AsyncImage(model = imgReq,
+                    contentDescription = null,
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.height(80.dp)
+                )
+                /*
+                Image(
+                    painter = rememberAsyncImagePainter(Uri.parse(presetItem.allPictureUri)),
+                    contentDescription = null
+                )*/
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.picnotfound/*TODO*/),
+                    contentDescription = null,
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.height(80.dp)
+                )
+                Text(
+                    AnnotatedString("Text not found"),
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
             Row (horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .padding(start = 8.dp, bottom = 8.dp, top = 8.dp, end = 8.dp)

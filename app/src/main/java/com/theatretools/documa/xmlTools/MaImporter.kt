@@ -15,10 +15,10 @@ class MaImporter(var uri: Uri) {
 
     suspend fun parseXml():List<PresetItem>{
         val result: Result<List<PresetItem>>
-        var presetReadout = PresetReadout()
+        var precompiledPresetReadout = PrecompiledPresetReadout()
 
         return withContext(Dispatchers.IO) {
-            presetReadout.parse(FileInputStream(uri.toString()))
+            precompiledPresetReadout.parse(FileInputStream(uri.toString()))
         }
     }
 

@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 
 //TODO: ExportSchema
-@Database(entities = [PresetItem::class, Device::class, DeviceInPreset::class], version = 1, exportSchema = false)
+@Database(entities = [PresetItem::class, Device::class, DeviceInPreset::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun appDao(): AppDAO
 
@@ -36,6 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java, "App.db"
             )
                 .allowMainThreadQueries()
+                .fallbackToDestructiveMigration() //TODO: CHANGE THIS!!!! VERY IMPORTANT
                 //.createFromAsset("database/sample.db") //TODO: Error handling
                 .build()
     }

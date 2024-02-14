@@ -1,9 +1,7 @@
 package com.theatretools.documa.dataobjects
 
 import android.net.Uri
-import android.os.Parcelable
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -14,7 +12,7 @@ class PresetItem (
     var presetID: Int?,
     var presetName: String?,
     var presetInfo: String?,
-    var allPictureName: String?,
+    var allPictureUri: String?,
     //var presetContent: List<FixInPreset>?,
     //TODO: PresetType?
 ){
@@ -25,7 +23,7 @@ class PresetItem (
     }
 
     override fun toString():String{
-        return "ID: $id | PrsID: $presetID | Name:$presetName \n Info: $presetInfo \n AllPictureName: $allPictureName"
+        return "ID: $id | PrsID: $presetID | Name:$presetName \n Info: $presetInfo \n AllPictureName: $allPictureUri"
     }
 
 }
