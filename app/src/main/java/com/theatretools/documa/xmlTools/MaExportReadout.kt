@@ -20,10 +20,12 @@ class  WrongShowfileException : Exception () {
 
 class MaExportReadout {
     var showfileName: String? = null
+    var infoDate: String? = null
+    var infoText: String? = null
+
     val entries = mutableListOf<PresetItem>()
+
     fun readout(uri: Uri) {
-
-
         val directory = File(uri.toString())
         val files = directory.listFiles()
         if (files != null) {
@@ -67,8 +69,9 @@ class MaExportReadout {
                 //Attribut "showfile"
                 if (showfileName != null){
                     if (showfileName != parser.getAttributeValue(1)) throw WrongShowfileException()
-                    else Log.d("MaExportReadout", "showfile matches")
+                    else Log.d("MaExportReadout", "showfile names dont match!!")
                     //TODO: Attribute name as String
+                    //TODO: Error Handling!
                 } else {
                     showfileName = parser.getAttributeValue(1)
                 }
@@ -81,26 +84,35 @@ class MaExportReadout {
             if (parser.name == "InfoItems" && parser.eventType == XmlPullParser.START_TAG) {
                 parser.next()
                 try {
-                    readInfo(parser)
+                    readInfo(parser) {date, text -> infoDate = date; infoText = text}
                 } catch (e: Exception){
-                    Log.e(this::class.toString(), "$e\n -> Info value was set null!")
+                    Log.e(this::class.toString(), "$e\n -> InfoItems are Invalid")
 
                 }
             }
             if (parser.name == "Values") {
-                entries.add(readPresetEntry(parser))
+                entries.add(readPresetEntry(parser, ))
             } else {
                 skip(parser)
             }
         }
         return entries
     }
-    private fun readInfo(parser: XmlPullParser): String? {
-        parser.require(XmlPullParser.START_TAG, ns, "preset_info")
-        val text = readText(parser)
-        parser.require(XmlPullParser.END_TAG, ns, "preset_info")
-        return text
+    private fun readInfo(parser: XmlPullParser, result: (date: String?, name: String?)-> Unit) {
+        parser.require(XmlPullParser.START_TAG, null, "Info")
+        result(parser.getAttributeValue(0), readText(parser), )
     }
+
+    private fun readPresetEntry(parser: XmlPullParser, addItem:(item: PresetItem) -> Unit) :  {
+        parser.next()
+        parser.require(XmlPullParser.START_TAG, null, "Channels")
+        parser.next()
+        var cond = true
+        while (cond) {
+            if
+        }
+    }
+
     private fun readText(parser: XmlPullParser): String {
         var result = ""
         if (parser.next() == XmlPullParser.TEXT) {
