@@ -34,10 +34,11 @@ class AddPresetActivity : ComponentActivity() {
     val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         newAllPictureUri = uri
         if (uri != null) {
+            this.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             Log.d("PhotoPicker", "Selected URI: $uri")
         } else {
-            Log.d("PhotoPicker", "No media selected")
-        }
+        Log.d("PhotoPicker", "No media selected")
+    }
     }
 
 

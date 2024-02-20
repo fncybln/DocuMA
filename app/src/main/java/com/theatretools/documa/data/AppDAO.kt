@@ -29,14 +29,35 @@ interface AppDAO {
     @Query("SELECT * FROM Device WHERE (SELECT deviceId FROM DeviceInPreset WHERE deviceId = :id)")
     fun loadAllDevicesWherePresetId(id: Int): Flow<List<Device>>
 
+    @Query("SELECT * FROM Device WHERE fix = :fix AND chan = :chan LIMIT 1")
+    fun getDeviceWithSameChanAndFix(fix: Int?, chan: Int?): Device?
+
+    @Query("SELECT * FROM Device WHERE id = :id LIMIT 1")
+    fun getDeviceByID(id: Int): Device?
+
     @Query("SELECT * FROM preset_items WHERE id = :id LIMIT 1")
     fun getPresetItemByID(id: Int): PresetItem
 
     @Update(onConflict = OnConflictStrategy.ABORT)
     fun updatePreset(presetItem: PresetItem): Int
+
+    // INSERTS
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPreset(vararg preset: PresetItem)
+    suspend fun insertPreset(vararg preset: PresetItem): List<Long>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDevice(vararg device: Device): List<Long>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDeviceInPreset(vararg deviceInPreset: DeviceInPreset): List<Long>
     @Delete
     suspend fun deletePreset(vararg preset: PresetItem)
+
+    @Query ("DELETE FROM Preset_Items")
+    suspend fun clearoutPresets()
+    @Query ("DELETE FROM Device")
+    suspend fun clearoutDevice()
+    @Query ("DELETE FROM DeviceInPreset")
+    suspend fun clearoutDevInPreset()
 
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -131,14 +132,14 @@ fun PresetEditor(
                 )
             }
         }
-        IconButton(modifier = Modifier
+        Button(modifier = Modifier
             .padding(20.dp),
             onClick ={ addImageCallback() } ){
             Icon(Icons.Filled.Create, contentDescription = null)
             Text(text = AnnotatedString("Choose Picture"))
         }
         
-        IconButton( modifier = Modifier
+        Button( modifier = Modifier
             .align(Alignment.End)
             .padding(20.dp),onClick = {
             returnCallback()

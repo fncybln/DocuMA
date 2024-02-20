@@ -1,5 +1,6 @@
 package com.theatretools.documa.xmlTools
 
+import android.content.ContentResolver
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
@@ -32,20 +33,27 @@ fun readout(uri: Uri) : List <MaExportReadout>?{
         return readout
     }
     else Log.d ("MaExportReadout", ("Size: null") ); return null
-
 }
 
-class MaExportReadout {
-    var presetName: String? = null
-    var presetIndex: Int? = null
-    var showfileName: String? = null
-    var infoDate: String? = null
-    var infoText: String? = null
-    var deviceList: List<Device>? = null
 
+fun readout(uris: List<Uri>, contentResolver: ContentResolver) : MutableList<ReadoutMaExport>? {
+    val readout = mutableListOf<ReadoutMaExport>()
+    if (uris != null) {
+        Log.d("MaExportReadout", ("Size: " + uris.size))
+        for (i in uris.indices) {
+            var item = ReadoutMaExport()
+            Log.d("Files", "FileName:" + uris[i].toString())
+            contentResolver.openInputStream(uris[i])?.let { item.parse(it) }
+            readout.add(item)
+        }
+        return readout
+    }
+    else Log.d ("MaExportReadout", ("Size: null") ); return null
+}
 
+class MaExportReadout : Readout() {
 
-
+    var debug : String = ""
     @Throws(XmlPullParserException::class, IOException::class)
     fun parse(inputStream: InputStream){
         inputStream.use {stream ->
@@ -59,85 +67,128 @@ class MaExportReadout {
 
     @Throws(XmlPullParserException::class, IOException::class)
     private fun readPresetFile(parser: XmlPullParser,) {
-        var devices: List<Device>? = listOfNotNull()
-        var attrReadoutTime: String?
-        //TODO: Include type if block
-        //TODO: Include FixtureList
-        parser.require(XmlPullParser.START_TAG, null,  "presets")
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.eventType != XmlPullParser.START_TAG) {
-                continue
-            }
-            // Starts by looking for the entry tag.
-            // Info Tag auf depth 2: attribute datetime und showfile name werden ausgelesen
-            if (parser.name == "Info" && parser.depth == 2 && parser.eventType == XmlPullParser.START_TAG){
+        
+        try {
+            var devices: List<Device>? = listOfNotNull()
+            //TODO: Include type if block
+            //TODO: Include FixtureList
+            debug += ("\nparser pos:" + parser.positionDescription)
+            var cond = true
+            //parser.require(XmlPullParser.START_TAG, null,  "presets")
+            while (cond) {
+                parser.nextTag()
+                Log.e("DEBUG", "<========================\n" +debug + "\n ========================>")
+                debug += ("\nparser while loop: " + parser.positionDescription)
+                if (parser.eventType != XmlPullParser.START_TAG) {
+                    continue
+                }
 
-                //Showfile name wird abgeglichen
-                //Attribut "showfile"
-                if (showfileName != null){
-                    if (showfileName != parser.getAttributeValue("", "showfile")) throw WrongShowfileException()
-                    else Log.d("MaExportReadout", "showfile names dont match!!")
-                    //TODO: Attribute name as String
-                    //TODO: Error Handling!
+                // Starts by looking for the entry tag.
+                // Info Tag auf depth 2: attribute datetime und showfile name werden ausgelesen
+                if (parser.name == "Info" && parser.depth == 2 && parser.eventType == XmlPullParser.START_TAG) {
+
+                    //Showfile name wird abgeglichen
+                    //Attribut "showfile"
+                    if (showfileName != null) {
+                        if (showfileName != parser.getAttributeValue(
+                                "",
+                                "showfile"
+                            )
+                        ) throw WrongShowfileException()
+
+                        //TODO: Attribute name as String
+                        //TODO: Error Handling!
+                    } else {
+                        showfileName = parser.getAttributeValue("", "showfile")
+                    }
+
+                    //Datetime vom Showfile
+                    // Attribut "datetime"
+                    readoutTime = parser.getAttributeValue("", "datetime")
+                }
+
+                if (parser.name == "Preset" && parser.eventType == XmlPullParser.START_TAG) {
+                    presetIndex = parser.getAttributeValue("", "index").toIntOrNull()
+                    presetName = parser.getAttributeValue("", "name")
+
+
+                }
+//                    && parser.eventType == XmlPullParser.START_TAG
+                if (parser.name == "InfoItems") {
+                    debug += ("\nparser: InfoItems -> next")
+                    parser.next()
+                    try {
+                        readInfo(parser) { date, text -> infoDate = date; infoText = text }
+                        debug += ("\ninfoData: $infoText | infoDate: $infoDate")
+                    } catch (e: Exception) {
+                        debug += ("\n$e\n -> InfoItems are Invalid")
+
+                    }
+
+                }
+                if (parser.name == "Values") {
+                    devices = readPresetEntry(parser)
+
                 } else {
-                    showfileName = parser.getAttributeValue("", "showfile")
+                    try {
+                        parser.next()
+//                        skip(parser)
+                    } catch (e: IllegalStateException) {
+
+                        debug += "\n paser.skip -> " + e.toString()
+                    }
                 }
-
-                //Datetime vom Showfile
-                // Attribut "datetime"
-                attrReadoutTime = parser.getAttributeValue("", "datetime")
+                if (parser.name == "MA" && parser.eventType == XmlPullParser.END_TAG) cond = false
             }
-
-            if (parser.name == "Preset" && parser.depth == 2 && parser.eventType == XmlPullParser.START_TAG){
-                presetIndex = parser.getAttributeValue("", "index").toIntOrNull()
-                presetName= parser.getAttributeValue("", "name")
-
-            }
-
-            if (parser.name == "InfoItems" && parser.eventType == XmlPullParser.START_TAG) {
-                parser.next()
-                try {
-                    readInfo(parser) {date, text -> infoDate = date; infoText = text}
-                } catch (e: Exception){
-                    Log.e(this::class.toString(), "$e\n -> InfoItems are Invalid")
-
-                }
-            }
-            if (parser.name == "Values") {
-                devices = readPresetEntry(parser)
-
-            } else {
-                skip(parser)
-            }
+            Log.e("DEBUG", debug)
+            debug = ""
+            deviceList = devices?.distinct()
+            parser.next()
         }
-        deviceList = devices?.distinct()
+        catch (e: Exception) {
+            Log.e(this::class.toString(), "ERROR: ${e.toString()} \n $debug")
+            parser.next()
+
+        }
     }
     private fun readInfo(parser: XmlPullParser, result: (date: String?, name: String?)-> Unit) {
         parser.require(XmlPullParser.START_TAG, null, "Info")
         result(parser.getAttributeValue("", "date"), readText(parser), )
+        debug += ("\nparser Position for readInfo:" + parser.positionDescription)
     }
 
     private fun readPresetEntry(parser: XmlPullParser) : List<Device>{
         val deviceList = mutableListOf<Device>()
         parser.next()
-        parser.require(XmlPullParser.START_TAG, null, "Channels")
-        parser.next()
-        var cond = true
-        while (cond) {
-            if (parser.name == "PresetValue") {
-                parser.next()
+        try {
+            parser.require(XmlPullParser.START_TAG, null, "Channels")
+
+            parser.next()
+            var cond = true
+            while (cond) {
+
+                if (parser.name == "PresetValue") {
+                    debug += ( "parser: PresetValue -> next")
+                    parser.next()
+                }
+                if (parser.name == "Channel") {
+
+                    deviceList.add(Device (
+                        null,
+                        parser.getAttributeValue("", "channel_id").toIntOrNull(),
+                        parser.getAttributeValue("", "fixture_id").toIntOrNull(),
+                        null, null)
+                    )
+                    debug += ("\nparser: Channel -> DeviceAdd")
+                }
+                if (parser.name == "Channels" && parser.eventType == XmlPullParser.END_TAG){
+                    cond = false
+                }
+                parser.nextTag()
             }
-            if (parser.name == "Channel") {
-                deviceList.add(Device (
-                    null,
-                    parser.getAttributeValue("", "channel_id").toIntOrNull(),
-                    parser.getAttributeValue("", "fixture_id").toIntOrNull(),
-                    null, null)
-                )
-            }
-            if (parser.name == "Channels" && parser.eventType == XmlPullParser.END_TAG){
-                cond = false
-            }
+            debug += ( "- > De0viceList size: ${deviceList.size}")
+        } catch (e: XmlPullParserException){
+            debug += "\nreadPresetEntry: " + parser.positionDescription + " \n -> THROWS " + e.toString()
         }
         return deviceList
     }
@@ -153,6 +204,7 @@ class MaExportReadout {
 
     @Throws(XmlPullParserException::class, IOException::class)
     private fun skip(parser: XmlPullParser) {
+        debug += ("\nparser.skip: " + parser.positionDescription)
         if (parser.eventType != XmlPullParser.START_TAG) {
             throw IllegalStateException()
         }
@@ -162,7 +214,6 @@ class MaExportReadout {
                 XmlPullParser.END_TAG -> depth--
                 XmlPullParser.START_TAG -> depth++
             }
-
         }
     }
 }

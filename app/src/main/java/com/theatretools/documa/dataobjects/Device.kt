@@ -16,4 +16,8 @@ class Device (
         return if(fix == chan) fix.toString()
         else "${fix?:"-"} : ${chan?:"-"}"
     }
+
+    override fun toString(): String {
+        return "Id: $id | Fix $fix | Chan $chan | DevT $deviceType | DevN $deviceName"
+    }
 }

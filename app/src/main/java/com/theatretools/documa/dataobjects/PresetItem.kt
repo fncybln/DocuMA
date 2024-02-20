@@ -13,6 +13,9 @@ class PresetItem (
     var presetName: String?,
     var presetInfo: String?,
     var allPictureUri: String?,
+    var infoDate: String? = "",
+    var readoutTimestamp: String? = ""
+
     //var presetContent: List<FixInPreset>?,
     //TODO: PresetType?
 ){
