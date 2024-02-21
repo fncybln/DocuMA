@@ -13,14 +13,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDAO {
-    @Query("SELECT * FROM Preset_Items")
+    @Query("SELECT * FROM Preset_Items ORDER BY presetID ASC")
     fun loadAllPresetItems(): Flow<List<PresetItem>>
 
     //Not necessary
     @Query("SELECT * FROM DeviceInPreset")
     fun loadAllDeviceInPreset(): Flow<List<DeviceInPreset>>
 
-    @Query("SELECT * FROM Device")
+    @Query("SELECT * FROM Device ORDER BY fix ASC")
     fun loadAllDevices(): Flow<List<Device>>
 
     @Query("SELECT * FROM Preset_Items WHERE (SELECT presetId FROM DeviceInPreset WHERE deviceId = :id)")
