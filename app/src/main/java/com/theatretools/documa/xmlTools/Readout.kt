@@ -17,6 +17,9 @@ open class Readout {
 
 
     fun toDatabase(appViewModel: AppViewModel, parentJob: Job): Job?{
+
+        // Creates a Preset Item from the class variables and inserts it and the fixtures into the database.
+
         val preset = PresetItem(null, presetIndex, presetName, infoText, null, infoDate, readoutTime)
         deviceList?.let { return appViewModel.insertPresetAndReferences(preset, it, parentJob) }
         return null
