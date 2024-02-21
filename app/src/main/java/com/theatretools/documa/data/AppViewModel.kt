@@ -26,11 +26,11 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
     fun insertPreset(preset: PresetItem) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertPreset(preset)
     }
-    fun insertPresetAndReferences(preset: PresetItem, devices: List<Device?>): Job {
+    fun insertPresetAndReferences(preset: PresetItem, devices: List<Device?>, parentJob: Job): Job {
         var presetID : Int?
         var devID : Int?
         var listOfDevID = mutableListOf<Int?>()
-        var result = viewModelScope.launch(Dispatchers.IO) {
+        var result = viewModelScope.launch(Dispatchers.IO + parentJob) {
 
             // Add the Preset Item into the database
 
@@ -53,6 +53,7 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
             listOfDevID.forEach {
                 repository.insertDeviceInPreset(DeviceInPreset(null, presetID, it, null))
             }
+            Result.success(true) // TODO: return indexes of Devices and Presets that got imported
         }
         return result
     }
@@ -61,11 +62,13 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
 
         val supervisorJob = viewModelScope.launch(Dispatchers.IO) {
             com.theatretools.documa.xmlTools.readout(it, contentResolver)?.forEach{ item ->
-                item.toDatabase(appViewModel)
+                item.toDatabase(appViewModel, Job())
             }
         }
         return supervisorJob
     }
+    //TODO: is this obsolete?
+
     fun insertDeviceInPreset(deviceInPreset: DeviceInPreset) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertDeviceInPreset(deviceInPreset)
     }

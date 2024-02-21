@@ -24,17 +24,19 @@ class ImportActivity : ComponentActivity() {
     private val appViewModel: AppViewModel by viewModels {
         ViewModelFactory((application as MainApplication).repository)
     }
-    var job: Job? = null
+    var parentJob: Job? = null
     val getXML = registerForActivityResult(contract = ActivityResultContracts.OpenMultipleDocuments()) {
         Log.v("ImportActivity", it.size.toString() + " Items")
         it.forEach{uri -> this.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)}
+        parentJob = Job()
         readout(it, contentResolver)?.forEach{ item ->
             Log.v("ImportActivity", "${item.presetName} | ${item.presetIndex} - Import: \n" +
                     "DeviceList: ${item.deviceList} \n " +
                     "Showfile name: ${item.showfileName}\n" +
                     "preset name: ${item.presetName} \n" +
                     "${item.infoDate} / ${item.infoText}")
-            job = item.toDatabase(appViewModel)
+            item.toDatabase(appViewModel, parentJob!!)
+            Log.v(this::class.toString(), "ImportJob: ")
         }
     }
 
@@ -49,7 +51,7 @@ class ImportActivity : ComponentActivity() {
                 ) {
                     ImportScreen({
                         getXML.launch(arrayOf("*/*"))
-                    }, null )
+                    }, parentJob )
                     Log.e("importActivity", "ImportScreen")
                 }
             }

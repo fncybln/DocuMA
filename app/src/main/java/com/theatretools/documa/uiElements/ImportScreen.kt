@@ -22,7 +22,7 @@ import kotlinx.coroutines.Job
 fun ImportScreen( importClick: () -> Unit, importJob: Job?) {
     Row {
 
-        Button (onClick = importClick) {
+        Button (onClick = {importClick()}) {
 
             Row {
                 Icon(Icons.Filled.Build, contentDescription = null)

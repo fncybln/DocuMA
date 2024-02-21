@@ -16,9 +16,9 @@ open class Readout {
 
 
 
-    fun toDatabase(appViewModel: AppViewModel): Job?{
+    fun toDatabase(appViewModel: AppViewModel, parentJob: Job): Job?{
         val preset = PresetItem(null, presetIndex, presetName, infoText, null, infoDate, readoutTime)
-        deviceList?.let { return appViewModel.insertPresetAndReferences(preset, it) }
+        deviceList?.let { return appViewModel.insertPresetAndReferences(preset, it, parentJob) }
         return null
     }
 }
