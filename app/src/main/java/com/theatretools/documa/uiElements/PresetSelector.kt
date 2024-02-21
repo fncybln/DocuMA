@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -94,17 +95,15 @@ fun PresetSelectionItem(presetItem: PresetItem, action: (presetItem: PresetItem)
                     contentDescription = null
                 )*/
             } else {
-                Image(
-                    painter = painterResource(id = R.drawable.picnotfound/*TODO*/),
-                    contentDescription = null,
-                    alignment = Alignment.Center,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.height(80.dp)
-                )
+
                 Text(
-                    AnnotatedString("Text not found"),
+                    AnnotatedString("No Image"),
+                    modifier = Modifier.padding(20.dp),
+                    color = Color.LightGray,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge
+
+
                 )
             }
             Row (horizontalArrangement = Arrangement.SpaceBetween,
@@ -128,9 +127,10 @@ fun PresetSelectionItem(presetItem: PresetItem, action: (presetItem: PresetItem)
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
-                Text(text =AnnotatedString( "1"),
-                    style = MaterialTheme.typography.labelSmall
-                )
+//                Text(text =AnnotatedString( "1"),
+//                    style = MaterialTheme.typography.labelSmall
+//                )
+// TODO: Preset Type?
             }
         }
     }
