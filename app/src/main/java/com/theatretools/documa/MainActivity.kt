@@ -14,7 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.theatretools.documa.activities.AddPresetActivity
 import com.theatretools.documa.activities.EditPresetActivity
-import com.theatretools.documa.activities.TestActivity
+import com.theatretools.documa.activities.ImportActivity
 import com.theatretools.documa.activities.UtilitiesActivities
 import com.theatretools.documa.data.AppViewModel
 import com.theatretools.documa.data.ViewModelFactory
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
 //        var importIntent =Intent(applicationContext, ImportActivity::class.java)
 //        Log.v("MainActivity", "importIntent")
 //        importPreset.launch(importIntent)
-        var importIntent = Intent(applicationContext, TestActivity::class.java)//.putExtra("editID", 1) //TODO: Change class names
+        var importIntent = Intent(applicationContext, ImportActivity::class.java)//.putExtra("editID", 1) //TODO: Change class names
 //        importPreset.launch(importIntent)
         startActivity(importIntent)
     }

@@ -21,7 +21,7 @@
             android:label="@string/title_activity_utilites_activities"
             android:theme="@style/Theme.DocuMA" />
         <activity
-            android:name=".activities.TestActivity"
+            android:name=".activities.ImportActivity"
             android:exported="false"
             android:label="@string/title_activity_test"
             android:theme="@style/Theme.DocuMA" />
@@ -36,11 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.ImportActivity"
-            android:exported="false"
-            android:label="@string/title_activity_import"
-            android:theme="@style/Theme.DocuMA" />
+
         <activity
             android:name=".activities.AddPresetActivity"
             android:exported="false"
