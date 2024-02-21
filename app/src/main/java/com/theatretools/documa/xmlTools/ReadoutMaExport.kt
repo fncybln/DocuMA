@@ -1,12 +1,55 @@
 package com.theatretools.documa.xmlTools
 
+import android.content.ContentResolver
+import android.net.Uri
 import android.util.Log
 import android.util.Xml
 import com.theatretools.documa.dataobjects.Device
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
+
+
+
+// ==========================================================================
+
+fun readout(uri: Uri) : List <MaExportReadout>?{
+    val readout = mutableListOf<MaExportReadout>()
+    val directory = File(uri.toString())
+    val files = directory.listFiles()
+    if (files != null) {
+        Log.d("MaExportReadout", ("Size: " + files.size))
+        for (i in files.indices) {
+            var item = MaExportReadout()
+            Log.d("Files", "FileName:" + files[i].name)
+            item.parse(files[i].inputStream())
+            readout.add(item)
+        }
+        return readout
+    }
+    else Log.d ("MaExportReadout", ("Size: null") ); return null
+}
+
+
+fun readout(uris: List<Uri>, contentResolver: ContentResolver) : MutableList<ReadoutMaExport>? {
+    val readout = mutableListOf<ReadoutMaExport>()
+    if (uris != null) {
+        Log.d("MaExportReadout", ("Size: " + uris.size))
+        for (i in uris.indices) {
+            var item = ReadoutMaExport()
+            Log.d("Files", "FileName:" + uris[i].toString())
+            contentResolver.openInputStream(uris[i])?.let { item.parse(it) }
+            readout.add(item)
+        }
+        return readout
+    }
+    else Log.d ("MaExportReadout", ("Size: null") ); return null
+}
+
+
+// ==========================================================================
 
 class ReadoutMaExport  : Readout(){
 
