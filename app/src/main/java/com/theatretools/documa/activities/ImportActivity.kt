@@ -26,18 +26,9 @@ class ImportActivity : ComponentActivity() {
     }
     var parentJob: Job? = null
     val getXML = registerForActivityResult(contract = ActivityResultContracts.OpenMultipleDocuments()) {
-        Log.v("ImportActivity", it.size.toString() + " Items")
+//        Log.v("ImportActivity", it.size.toString() + " Items")
         it.forEach{uri -> this.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)}
-        parentJob = Job()
-        readout(it, contentResolver)?.forEach{ item ->
-            Log.v("ImportActivity", "${item.presetName} | ${item.presetIndex} - Import: \n" +
-                    "DeviceList: ${item.deviceList} \n " +
-                    "Showfile name: ${item.showfileName}\n" +
-                    "preset name: ${item.presetName} \n" +
-                    "${item.infoDate} / ${item.infoText}")
-            item.toDatabase(appViewModel, parentJob!!)
-            Log.v(this::class.toString(), "ImportJob: ")
-        }
+        parentJob = appViewModel.urisToReadout(it, this.contentResolver)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

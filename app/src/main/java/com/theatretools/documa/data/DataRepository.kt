@@ -1,5 +1,6 @@
 package com.theatretools.documa.data
 
+import android.util.Log
 import androidx.annotation.WorkerThread
 import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
@@ -43,8 +44,11 @@ class DataRepository(private val appDAO: AppDAO) {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insertUniqueDevice( device: Device ): Long {
-        return if (appDAO.getDeviceWithSameChanAndFix(device.fix, device.chan) == null){
+    suspend fun insertUniqueDevice( device: Device ): Long { // TODO: DOES NOT WORK!!!!
+        val ret = appDAO.getDeviceWithSameChanAndFix(device.fix, device.chan)
+        Log.v (this::class.toString(), "insertUniqueDevice: getDev($device) returns: $ret")
+        return if ( ret  == null){
+            Log.v (this::class.toString(), "insertUniqueDevice: getDev ($device) is null: $ret")
             appDAO.insertDevice(device)[0]
         } else 0
     }

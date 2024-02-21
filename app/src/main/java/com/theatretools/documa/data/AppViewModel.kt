@@ -11,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
+import com.theatretools.documa.xmlTools.Readout
+import com.theatretools.documa.xmlTools.ReadoutMaExport
 import io.reactivex.Flowable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,9 +25,59 @@ import java.lang.Exception
 import java.lang.reflect.Array.setInt
 
 class AppViewModel(private val repository: DataRepository): ViewModel() {
-    fun insertPreset(preset: PresetItem) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insertPreset(preset)
+
+    // Readout handling
+    fun urisToReadout (uriList: List<Uri>, contentResolver: ContentResolver, ) : Job {
+
+        return viewModelScope.launch(Dispatchers.IO) {
+            val readout = mutableListOf<ReadoutMaExport>()
+            Log.v(this::class.toString() + " | urisToReadout()", ("Size of uriList:" + uriList.size) )
+            for (i in uriList.indices) {
+                val item = ReadoutMaExport()
+                Log.v (this::class.toString() + " | urisToReadout()", " == Now parsing: == File ${uriList[i]}")
+                contentResolver.openInputStream(uriList[i])?.let { item.parse(it) }
+                readout.add(item)
+            }
+            readout.forEach {
+                insertPresetAndReferences(it)
+            }
+        }
     }
+
+    private suspend fun insertPresetAndReferences(readout: Readout) {
+        val devices = readout.deviceList
+        val preset = readout.getPreset()
+        val presetID : Int?
+        var devID : Int?
+        val listOfDevID = mutableListOf<Int?>()
+                // Add the Preset Item into the database
+
+        presetID = repository.insertPreset(preset).toInt()
+
+        // Check if the devices are in the database. if not, add them and get their ids.
+        devices?.forEach {
+            devID = it?.let { it1 ->
+                repository.insertUniqueDevice(it1)
+                    .toInt()
+            }
+            //if device is already in the database, get the items ID
+            if (devID == 0) {
+                devID = repository.getDevice(it?.chan ?: 0, it?.fix?: 0)
+            }
+            listOfDevID.add(devID)
+        }
+
+        //Update the reference database
+        listOfDevID.forEach {
+            repository.insertDeviceInPreset(DeviceInPreset(null, presetID, it, null))
+        }
+        Result.success(true) // TODO: return indexes of Devices and Presets that got imported
+
+    }
+
+
+
+
     fun insertPresetAndReferences(preset: PresetItem, devices: List<Device?>, parentJob: Job): Job {
         var presetID : Int?
         var devID : Int?
@@ -58,16 +110,9 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
         return result
     }
 
-    fun readout (it : List<Uri>, contentResolver: ContentResolver, appViewModel: AppViewModel): Job?{
-
-        val supervisorJob = viewModelScope.launch(Dispatchers.IO) {
-            com.theatretools.documa.xmlTools.readout(it, contentResolver)?.forEach{ item ->
-                item.toDatabase(appViewModel, Job())
-            }
-        }
-        return supervisorJob
+    fun insertPreset(preset: PresetItem) = viewModelScope.launch(Dispatchers.IO) {
+        repository.insertPreset(preset)
     }
-    //TODO: is this obsolete?
 
     fun insertDeviceInPreset(deviceInPreset: DeviceInPreset) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertDeviceInPreset(deviceInPreset)

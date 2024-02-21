@@ -15,22 +15,22 @@ import java.io.InputStream
 
 // ==========================================================================
 
-fun readout(uri: Uri) : List <MaExportReadout>?{
-    val readout = mutableListOf<MaExportReadout>()
-    val directory = File(uri.toString())
-    val files = directory.listFiles()
-    if (files != null) {
-        Log.d("MaExportReadout", ("Size: " + files.size))
-        for (i in files.indices) {
-            var item = MaExportReadout()
-            Log.d("Files", "FileName:" + files[i].name)
-            item.parse(files[i].inputStream())
-            readout.add(item)
-        }
-        return readout
-    }
-    else Log.d ("MaExportReadout", ("Size: null") ); return null
-}
+//fun readout(uri: Uri) : List <MaExportReadout>?{
+//    val readout = mutableListOf<MaExportReadout>()
+//    val directory = File(uri.toString())
+//    val files = directory.listFiles()
+//    if (files != null) {
+//        Log.d("MaExportReadout", ("Size: " + files.size))
+//        for (i in files.indices) {
+//            var item = MaExportReadout()
+//            Log.d("Files", "FileName:" + files[i].name)
+//            item.parse(files[i].inputStream())
+//            readout.add(item)
+//        }
+//        return readout
+//    }
+//    else Log.d ("MaExportReadout", ("Size: null") ); return null
+//}
 
 
 fun readout(uris: List<Uri>, contentResolver: ContentResolver) : MutableList<ReadoutMaExport>? {
@@ -65,7 +65,6 @@ class ReadoutMaExport  : Readout(){
     }
 
     private fun readPresetFile(parser: XmlPullParser) {
-        var devices: List<Device>? = listOfNotNull()
         var cond = false
 
         // Document Header
@@ -95,6 +94,7 @@ class ReadoutMaExport  : Readout(){
         nextStartTag(parser) {} //Channels
 
         deviceList = getChannels(parser)
+        deviceList!!.distinct()
         Log.v ("readPresetFiles()" , "finished Readout")
 
 
