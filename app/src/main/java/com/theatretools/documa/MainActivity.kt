@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Observer
 import com.theatretools.documa.activities.AddPresetActivity
 import com.theatretools.documa.activities.EditPresetActivity
 import com.theatretools.documa.activities.ImportActivity
 import com.theatretools.documa.activities.UtilitiesActivities
 import com.theatretools.documa.data.AppViewModel
 import com.theatretools.documa.data.ViewModelFactory
+import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.PresetItem
 import com.theatretools.documa.ui.theme.DocuMATheme
 import com.theatretools.documa.uiElements.MainScreen
@@ -30,9 +32,15 @@ class MainActivity : ComponentActivity() {
     val  editPreset = registerForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { null }
     val  importPreset = registerForActivityResult(contract = ActivityResultContracts.StartActivityForResult(), { null })
     val  utilitiesScreen = registerForActivityResult(contract = ActivityResultContracts.StartActivityForResult(), {null})
+
+    var deviceList: List<Device>? = null
+    val deviceObserver = Observer<List<Device>>{deviceList = it}
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        appViewModel.AllDeviceItems.observe(this, deviceObserver)
         setContent {
             DocuMATheme {
                 // A surface container using the 'background' color from the theme
@@ -40,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(viewModel = appViewModel, lifecycleOwner = this,
+                    MainScreen(viewModel = appViewModel, lifecycleOwner = this, deviceList = deviceList,
                         {startAddActivity()},
                         {preset -> startEditActivity(preset)},
                         {startImportActivity()},

@@ -1,5 +1,6 @@
 package com.theatretools.documa.uiElements
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,27 +36,21 @@ import com.theatretools.documa.dataobjects.Device
 @Composable
 fun DeviceSelector(
     modifier: Modifier = Modifier,
-    viewModel: AppViewModel,
-    lifecycleOwner: LifecycleOwner,
-
+    deviceList: List<Device>?
     ) {
-    var list: List<Device>? = null
-    val deviceObserver = Observer<List<Device>>{list = it}
-    val data = viewModel.AllDeviceItems.observe(lifecycleOwner, deviceObserver)
 
-
+    Log.v("DeviceSelector", "observed items: ${deviceList?.size}")
     LazyRow( horizontalArrangement = Arrangement.spacedBy (8.dp),
         modifier = Modifier
     ){
-        if (list != null) {
-            for(device in list!!) {
-                item (key = device.id) {
+        deviceList?.forEach {
+                item (key = it.id) {
                     DeviceItem(
-                        device, repository = null, modifier = null
+                        it, modifier = null
                     ) { //TODO: ClickAction
                     }
 
-                }
+
             }
 
         }
@@ -66,7 +61,7 @@ fun DeviceSelector(
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeviceItem(device: Device, repository: DataRepository?, modifier: Modifier?, action: ()->Unit){
+fun DeviceItem(device: Device, modifier: Modifier?, action: ()->Unit){
     Card(onClick = action, modifier = Modifier.width(180.dp)) {
         Row (
             verticalAlignment = Alignment.Top,

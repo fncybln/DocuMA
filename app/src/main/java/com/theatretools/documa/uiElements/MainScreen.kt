@@ -48,6 +48,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import com.theatretools.documa.data.AppViewModel
+import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.PresetItem
 import kotlinx.coroutines.launch
 
@@ -63,6 +64,7 @@ class NavDrawItem (
 @Composable
 fun MainScreen(
     viewModel: AppViewModel, lifecycleOwner: LifecycleOwner,
+    deviceList: List<Device>?,
     addButtonAction: ()-> Unit,
     editCardAction: (presetItem: PresetItem)-> Unit,
     importButtonAction: ()-> Unit,
@@ -82,8 +84,9 @@ fun MainScreen(
             Column (
             )
             {
-                DeviceSelector(modifier = Modifier, viewModel, lifecycleOwner)
-                //Spacer(Modifier.height(8.dp))
+                DeviceSelector(modifier = Modifier, deviceList)
+                Text("test")
+                Spacer(Modifier.height(8.dp))
                 Row (modifier = Modifier.horizontalScroll(scrollState)){
                     Button(onClick = { /*TODO*/ }, modifier = Modifier.padding(8.dp)) {
                         Icon(Icons.Filled.Home, contentDescription = null)
@@ -167,6 +170,7 @@ fun MainScreen(
                     }
                 },
                 content = { padding ->
+                    Text ("test")
                     Box(/* TODO: refresh pull */) {
                         PresetSelector(
                             modifier = Modifier.padding(padding),
