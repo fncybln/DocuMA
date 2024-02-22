@@ -23,7 +23,7 @@ class DataRepository(private val appDAO: AppDAO) {
     }
 
     @WorkerThread
-    fun getDevice ( chan : Int , fix : Int ): Int?{
+    fun getDevice ( chan : Int? , fix : Int? ): Int?{
         return appDAO.getDeviceWithSameChanAndFix(fix, chan)?.id
     }
     @WorkerThread
@@ -44,13 +44,14 @@ class DataRepository(private val appDAO: AppDAO) {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insertUniqueDevice( device: Device ): Long { // TODO: DOES NOT WORK!!!!
-        val ret = appDAO.getDeviceWithSameChanAndFix(device.fix, device.chan)
-        Log.v (this::class.toString(), "insertUniqueDevice: getDev($device) returns: $ret")
-        return if ( ret  == null){
-            Log.v (this::class.toString(), "insertUniqueDevice: getDev ($device) is null: $ret")
-            appDAO.insertDevice(device)[0]
-        } else 0
+    suspend fun insertUniqueDevice( device: Device? ): Int? { // TODO: DOES NOT WORK!!!!
+        val ret = appDAO.getDeviceWithSameChanAndFix(device?.fix, device?.chan)
+        //Log.v("rep.insertUniqueDevice", "getDevWithSame: $ret")
+//        Log.v (this::class.toString(), "insertUniqueDevice: getDev($device) returns: $ret")
+        return if ( ret  == null && device != null){
+//            Log.v (this::class.toString(), "insertUniqueDevice: getDev ($device) is null: $ret")
+            appDAO.insertDevice(device)[0].toInt()
+        } else ret?.id
     }
 
     @Suppress("RedundantSuspendModifier")

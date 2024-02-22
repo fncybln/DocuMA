@@ -93,11 +93,8 @@ class ReadoutMaExport  : Readout(){
         nextStartTag(parser) {} //Values
         nextStartTag(parser) {} //Channels
 
-        deviceList = getChannels(parser)
-        deviceList!!.distinct()
+        deviceList = getChannels(parser).distinctBy{it?.fix}
         Log.v ("readPresetFiles()" , "finished Readout")
-
-
     }
 
     private fun getChannels (parser: XmlPullParser): List<Device?>{

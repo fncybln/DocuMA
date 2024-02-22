@@ -32,6 +32,9 @@ interface AppDAO {
     @Query("SELECT * FROM Device WHERE fix = :fix AND chan = :chan LIMIT 1")
     fun getDeviceWithSameChanAndFix(fix: Int?, chan: Int?): Device?
 
+    @Query("SELECT DISTINCT fix, chan FROM Device WHERE fix = :fix AND chan = :chan LIMIT 1")
+    fun getDeviceWithSameChanAndFixByDistinct(fix: Int?, chan: Int? ): Device?
+
     @Query("SELECT * FROM Device WHERE id = :id LIMIT 1")
     fun getDeviceByID(id: Int): Device?
 

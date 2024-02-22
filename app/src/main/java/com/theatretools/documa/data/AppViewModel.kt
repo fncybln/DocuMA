@@ -31,14 +31,16 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
 
         return viewModelScope.launch(Dispatchers.IO) {
             val readout = mutableListOf<ReadoutMaExport>()
-            Log.v(this::class.toString() + " | urisToReadout()", ("Size of uriList:" + uriList.size) )
+            Log.v("urisToReadout()", ("Size of uriList:" + uriList.size) )
             for (i in uriList.indices) {
                 val item = ReadoutMaExport()
-                Log.v (this::class.toString() + " | urisToReadout()", " == Now parsing: == File ${uriList[i]}")
+                Log.v ("urisToReadout()", " == Now parsing: == File ${uriList[i]}")
                 contentResolver.openInputStream(uriList[i])?.let { item.parse(it) }
                 readout.add(item)
             }
+
             readout.forEach {
+                it.deviceList?.distinctBy { it!!.chan }
                 insertPresetAndReferences(it)
             }
         }
@@ -49,27 +51,24 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
         val preset = readout.getPreset()
         val presetID : Int?
         var devID : Int?
-        val listOfDevID = mutableListOf<Int?>()
                 // Add the Preset Item into the database
 
         presetID = repository.insertPreset(preset).toInt()
 
         // Check if the devices are in the database. if not, add them and get their ids.
+        // then update the reference table
+        Log.v("insertPresetsAndReferences", "devices: $devices")
         devices?.forEach {
             devID = it?.let { it1 ->
                 repository.insertUniqueDevice(it1)
-                    .toInt()
             }
-            //if device is already in the database, get the items ID
-            if (devID == 0) {
-                devID = repository.getDevice(it?.chan ?: 0, it?.fix?: 0)
-            }
-            listOfDevID.add(devID)
-        }
+            //Log.v(" insertPresetAndRefs()", "found DevID: $devID\nfound PresetID: $presetID")
 
-        //Update the reference database
-        listOfDevID.forEach {
-            repository.insertDeviceInPreset(DeviceInPreset(null, presetID, it, null))
+            if (devID != null ) repository.insertDeviceInPreset(DeviceInPreset(
+                id = null,
+                presetID,
+                devID,
+                null))
         }
         Result.success(true) // TODO: return indexes of Devices and Presets that got imported
 
@@ -77,7 +76,7 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
 
 
 
-
+// DEPRECATED?
     fun insertPresetAndReferences(preset: PresetItem, devices: List<Device?>, parentJob: Job): Job {
         var presetID : Int?
         var devID : Int?
@@ -92,7 +91,6 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
             devices.forEach {
                 devID = it?.let { it1 ->
                     repository.insertUniqueDevice(it1)
-                        .toInt()
                 }
                 //if device is already in the database, get the items ID
                 if (devID == 0) {
