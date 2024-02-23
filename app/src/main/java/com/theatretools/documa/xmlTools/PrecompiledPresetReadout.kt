@@ -2,19 +2,17 @@ package com.theatretools.documa.xmlTools
 
 
 import android.util.Xml
-import com.theatretools.documa.dataobjects.FixInPreset
-import com.theatretools.documa.dataobjects.IdHandler
+import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.io.InputStream
 
-class PresetReadout ( idHandler:IdHandler
+class PrecompiledPresetReadout (
 
 ) {
 
-    private val idH = idHandler
     // We don't use namespaces.
     private val ns: String? = null
 
@@ -22,7 +20,7 @@ class PresetReadout ( idHandler:IdHandler
     @Throws(XmlPullParserException::class, IOException::class)
     fun parse(inputStream: InputStream): List<PresetItem> {
         inputStream.use { inputStream ->
-            val parser: XmlPullParser = Xml.newPullParser()
+            val parser: XmlPullParser = Xml.newPullParser() //TODO: Factory?
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(inputStream, null)
             parser.nextTag()
@@ -61,7 +59,7 @@ class PresetReadout ( idHandler:IdHandler
         var preset_name: String? = null
         var preset_info: String? = null
         var all_picture_name: String? = null
-        var fix_chan: List<FixInPreset>? = null
+        var fix_chan: List<DeviceInPreset>? = null
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
                 continue
@@ -76,7 +74,7 @@ class PresetReadout ( idHandler:IdHandler
                 else -> skip(parser)
             }
         }
-        return PresetItem(id, preset_id, preset_name, preset_info, all_picture_name, fix_chan,  idHandler = idH)
+        return PresetItem(id, preset_id, preset_name, preset_info, all_picture_name)
     }
 
     @Throws(IOException::class, XmlPullParserException::class)
@@ -124,12 +122,12 @@ class PresetReadout ( idHandler:IdHandler
         return text
     }
     @Throws(NumberFormatException::class)
-    private fun readFixChan(parser: XmlPullParser): MutableList<FixInPreset>? {
+    private fun readFixChan(parser: XmlPullParser): MutableList<DeviceInPreset>? {
 
         if (parser.eventType != XmlPullParser.START_TAG){
             throw IllegalStateException()
         }
-        val list: MutableList<FixInPreset>? = null
+        val list: MutableList<DeviceInPreset>? = null
         var fcId: Int? = null
         var fix: Int? = null
         var chan: Int? = null
@@ -148,7 +146,7 @@ class PresetReadout ( idHandler:IdHandler
                 throw NumberFormatException("<fc_id>, <fix> or <chan> tag doesn't contain an Int")
             }
 
-            list?.add(FixInPreset(fcId, fix, chan, ind_picture_name, idH))
+            //list?.add(DeviceInPreset(null, )) //TODO
 
             parser.next()
 

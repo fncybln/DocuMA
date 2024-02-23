@@ -2,7 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,7 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DocuMA"
         tools:targetApi="31">
-
+        <activity
+            android:name=".activities.UtilitiesActivities"
+            android:exported="false"
+            android:label="@string/title_activity_utilites_activities"
+            android:theme="@style/Theme.DocuMA" />
+        <activity
+            android:name=".activities.ImportActivity"
+            android:exported="false"
+            android:label="@string/title_activity_test"
+            android:theme="@style/Theme.DocuMA" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -24,10 +36,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.AddPresetActivity"
+            android:exported="false"
+            android:label="@string/title_activity_add_preset"
+            android:theme="@style/Theme.DocuMA" />
         <activity
             android:name=".ImportActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false" />
+        <activity
+            android:name=".activities.EditPresetActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

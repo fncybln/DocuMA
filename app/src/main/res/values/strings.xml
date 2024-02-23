@@ -44,4 +44,10 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <string name="title_activity_import">ImportActivity</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_add_preset">AddPresetActivity</string>
+    <string name="title_activity_edit_preset">EditPresetActivity</string>
+    <string name="title_activity_test">TestActivity</string>
+    <string name="title_activity_utilites_activities">UtilitesActivities</string>
 </resources>
