@@ -15,6 +15,7 @@ class TelnetConnection (var SERVER_IP: String, var SERVER_PORT: Int){
         try{
             rawClient.connect(SERVER_IP, SERVER_PORT)
         } catch (e: SocketException){
+            Log.e("TelnetConnection", "Connection Error: ${e.stackTrace}")
             throw SocketException("Connection Error :(")
         }
     }
