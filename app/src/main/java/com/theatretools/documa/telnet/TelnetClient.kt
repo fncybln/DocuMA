@@ -14,21 +14,41 @@ import java.util.LinkedList
 import java.util.Locale
 
 
-class TelnetClient (ip: String, port: Int){
+open class TelnetClient (ip: String, port: Int){
+
+    companion object {
+        val STATUS_CONNECTED = 1
+        val STATUS_DISCONNECTED = 0
+    }
+
     private var client: TelnetConnection? = null
     private var outputStream: OutputStream? = null
     private var rawConnection: org.apache.commons.net.telnet.TelnetClient? = null
     private var inputStream: InputStream? = null
     private var threads = LinkedList<Thread>()
     private var spyReader : PipedInputStream? = null
-    private var telnetConnection = TelnetConnection(ip, port)
+    private var telnetConnection = com.theatretools.documa.telnet.TelnetConnection(ip, port)
 
     init {
-        telnetConnection.connect()
         rawConnection = telnetConnection.getClient
         outputStream = telnetConnection.getOutput
         inputStream = telnetConnection.getReader
     }
+
+    fun connect(ip: String, port: Int?, onResult: (Boolean, Exception?) -> Unit) {
+        try {
+            telnetConnection.connect(ip, port)
+            Log.v("TelnetClient.connect()", "connecting to telnet Client...")
+            Log.v("TelnetClient.connect()", "Connection Status: ${telnetConnection.isConnected}.")
+            onResult(true, null)
+        } catch (e: Exception) {
+            onResult(false, e)
+        }
+
+    }
+
+
+
 
 
     fun close (): Boolean{
@@ -36,7 +56,7 @@ class TelnetClient (ip: String, port: Int){
     }
 
     fun sendCommand (cmd: String): Boolean {
-        if (client == null || client?.isConnected == false) {
+        if (telnetConnection.isConnected == false) {
             return false
         }
         val stringBuilder = StringBuilder()
@@ -55,8 +75,9 @@ class TelnetClient (ip: String, port: Int){
         }
     }
 
-    fun getResponse(cmd: String) : String {
-        if (client == null || client?.isConnected == false) {
+    fun getResponse(cmd: String, onResult: (String) -> Unit) : String {
+        if (telnetConnection.isConnected == false) {
+            Log.v ("TelnetClient.getResponse()", "Client disconnected, cant send message")
             throw IOException("Client disconnected, cant send message")
         }
         val stringBuilder = StringBuilder()
@@ -65,24 +86,34 @@ class TelnetClient (ip: String, port: Int){
 
         val cmdByte = stringBuilder.toString().toByteArray()
 
+        var result: String? = ""
+        var done = false
 
         val a: InputStreamReader? = spawnSpy()
         val buf = BufferedReader(a)
+        Log.v("TelnetClient.getResponse()", "Buffer ready?: ${buf.ready()}")
+        try {
+            while (buf.ready()) buf.read()
 
-        while (buf.ready()) buf.read()
-        outputStream?.write(cmdByte, 0, cmdByte.size)
-        outputStream?.flush()
+            outputStream?.write(cmdByte, 0, cmdByte.size)
+            outputStream?.flush()
 
-        var result: String?
-        var done = false
+            do {
+                result = buf.readLine()
+                if (result != null) done = true
+            } while (!done)
 
-        do {
-            result = buf.readLine()
-            if (result != null) done = true
-        } while (!done)
+        } catch (e: Exception) {
+            Log.e("TelnetClient", "Exception when writing the outputStream: \n${e.printStackTrace()}")
+        }
 
-        return result!!
+//        Log.v("TelnetClient.getResponse()", "Collected Buffer: ${buf.readLine()}")
 
+
+        Log.v ("TelnetClient.getResponse()", "Sent: $cmd \n$cmdByte")
+        Log.v ("TelnetClient.getResponse()", "Recieved: $result")
+        onResult(result!!)
+        return result
 
     }
 

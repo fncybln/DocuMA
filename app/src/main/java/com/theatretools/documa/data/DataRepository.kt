@@ -67,4 +67,22 @@ class DataRepository(private val appDAO: AppDAO) {
         appDAO.clearoutPresets()
         appDAO.clearoutDevInPreset()
     }
+
+    fun getTelnetIP(): String? {
+        return appDAO.getPreference("telnet_IP")?.get(0)?.content
+    }
+
+    fun updateTelnetIP(ip: String) {
+        if ( appDAO.getPreference("telnet_IP")?.size != 0) {
+            Log.v("repository.updateTelnetIP", "current Preferences with 'telnet_IP' Tag: ${appDAO.getPreference("telnet_IP")}")
+            Log.v("repository.updateTelnetIP", "updating Preference")
+            appDAO.setPreference("telnet_IP", ip)
+        } else {
+            Log.v("repository.updateTelnetIP", "current Preferences with 'telnet_IP' Tag: ${appDAO.getPreference("telnet_IP")}")
+            Log.v("repository.updateTelnetIP", "inserting new Preference")
+            appDAO.insertPreference("telnet_IP", ip)
+        }
+    }
+
+
 }

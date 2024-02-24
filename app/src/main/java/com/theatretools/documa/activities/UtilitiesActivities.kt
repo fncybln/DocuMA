@@ -21,6 +21,10 @@ class UtilitiesActivities : ComponentActivity() {
         ViewModelFactory((application as MainApplication).repository)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+        var telnetIP = try {appViewModel.getTelnetIP()} catch (e: IndexOutOfBoundsException) {null}
+//        if (telnetIP != null) {
+//            appViewModel.telnetClient.connect(telnetIP, null)
+//        }
         super.onCreate(savedInstanceState)
         setContent {
             DocuMATheme {
@@ -29,9 +33,14 @@ class UtilitiesActivities : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    UtilitiesScreen(Modifier.padding(20.dp)) {
-                        appViewModel.clearoutDatabase()
-                    }
+                    UtilitiesScreen(Modifier.padding(20.dp), telnetIP,
+                        {
+                            appViewModel.clearoutDatabase()
+                        },
+                        {
+                            appViewModel.updateTelnetIP(it)
+
+                        })
 
                 }
             }

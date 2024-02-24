@@ -16,6 +16,7 @@ import androidx.lifecycle.Observer
 import com.theatretools.documa.activities.AddPresetActivity
 import com.theatretools.documa.activities.EditPresetActivity
 import com.theatretools.documa.activities.ImportActivity
+import com.theatretools.documa.activities.TelnetTestActivity
 import com.theatretools.documa.activities.UtilitiesActivities
 import com.theatretools.documa.data.AppViewModel
 import com.theatretools.documa.data.ViewModelFactory
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         appViewModel.AllDeviceItems.observe(this, deviceObserver)
         setContent {
             DocuMATheme {
@@ -52,7 +54,8 @@ class MainActivity : ComponentActivity() {
                         {startAddActivity()},
                         {preset -> startEditActivity(preset)},
                         {startImportActivity()},
-                        {utilitiesScreenActivity()}
+                        {utilitiesScreenActivity()},
+                        {telnetActivity()}
                     )
                 }
             }
@@ -82,6 +85,11 @@ class MainActivity : ComponentActivity() {
         var importIntent = Intent(applicationContext, ImportActivity::class.java)//.putExtra("editID", 1) //TODO: Change class names
 //        importPreset.launch(importIntent)
         startActivity(importIntent)
+    }
+
+    private fun telnetActivity(){
+        val telnetIntent = Intent (applicationContext, TelnetTestActivity::class.java)
+        startActivity(telnetIntent)
     }
 }
 

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -68,7 +69,8 @@ fun MainScreen(
     addButtonAction: ()-> Unit,
     editCardAction: (presetItem: PresetItem)-> Unit,
     importButtonAction: ()-> Unit,
-    utilitiesButtonAction: () -> Unit
+    utilitiesButtonAction: () -> Unit,
+    telnetButtonAction: () -> Unit
 ) {
 
 
@@ -113,7 +115,8 @@ fun MainScreen(
         val navDrawItems = listOf (
             NavDrawItem("Overview", Icons.Default.Home, {null}),
             NavDrawItem("Import", Icons.Default.Add, {importButtonAction()}),
-            NavDrawItem("Utilities", Icons.Default.Create, {utilitiesButtonAction()})
+            NavDrawItem("Utilities", Icons.Default.Create, {utilitiesButtonAction()}),
+            NavDrawItem("TelnetTest", Icons.Default.ExitToApp, {telnetButtonAction()})
         )
         val selectedItem = remember { mutableStateOf(navDrawItems[0]) }
         ModalNavigationDrawer(
