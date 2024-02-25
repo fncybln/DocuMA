@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 
 @Composable
-fun TelnetView(outputText: String?, sendAction : (cmd: String?) -> String?, connectAction:()-> Unit) {
+fun TelnetView(outputText: String?, sendAction : (cmd: String?)-> Unit, connectAction:()-> Unit) {
 
     val scrollState = rememberScrollState()
     var output by remember { mutableStateOf(outputText) }
@@ -37,7 +37,7 @@ fun TelnetView(outputText: String?, sendAction : (cmd: String?) -> String?, conn
             Text(text = "Connect to GrandMa2")
         }
 
-        var cmdInput by remember { mutableStateOf("login")}
+        var cmdInput by remember { mutableStateOf("LOGIN \"luce\" \"27011966\"")}
         TextField(
             value = cmdInput,
             onValueChange = { cmdInput = it },
@@ -47,7 +47,7 @@ fun TelnetView(outputText: String?, sendAction : (cmd: String?) -> String?, conn
             modifier = Modifier.padding(top = 20.dp),
             keyboardOptions = KeyboardOptions(),
         )
-        Button ( modifier = Modifier.padding(top = 20.dp), onClick = {output = sendAction(cmdInput)}){
+        Button ( modifier = Modifier.padding(top = 20.dp), onClick = {sendAction(cmdInput)}){
             Icon(Icons.Filled.Check, null)
             Text(text = "Send")
         }

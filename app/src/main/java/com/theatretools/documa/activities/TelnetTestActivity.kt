@@ -33,7 +33,7 @@ class TelnetTestActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         var telnet = appViewModel.telnetClient
-        var outputText : String? = "no Output yet"
+        var outputText : String? = appViewModel.
 
 
         setContent {
@@ -54,13 +54,11 @@ class TelnetTestActivity : ComponentActivity() {
                             }
                         } catch (e: IndexOutOfBoundsException) {
                              outputText ="IndexOutOfBoundsException"
-
                         }
-                        return@TelnetView outputText
                     },
                     {
                         try {
-                            appViewModel.telnetConnect(){msg, result -> if (!result) outputText = msg}}
+                            appViewModel.telnetConnect(){msg, result, e -> if (!result) outputText = msg}}
                         catch (e: SocketException) {
                             Log.e("TelnetTestActivity", "${e.stackTrace}\n${e.toString()}")
                             outputText = "Connection Failed. Stack trace: \n${e.stackTrace} \n $e"
@@ -70,6 +68,11 @@ class TelnetTestActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        appViewModel.telnetClient.close()
     }
 }
 

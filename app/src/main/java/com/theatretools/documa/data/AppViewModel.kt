@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
+import com.theatretools.documa.telnet.TelnetClient
 import com.theatretools.documa.telnet.TelnetConnection
 import com.theatretools.documa.xmlTools.Readout
 import com.theatretools.documa.xmlTools.ReadoutMaExport
@@ -81,43 +82,38 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
         return repository.getTelnetIP()
     }
 
-    fun telnetConnect(onResult: ( message: String, result: Boolean ) -> Unit){
+    fun telnetConnect(onResult: ( message: String, result: Boolean, error: Throwable? ) -> Unit){
         viewModelScope.launch  (Dispatchers.IO) {
             repository.getTelnetIP()?.let { telnetClient.connect(it, 30000) {result, e ->
-                if (!result) onResult("An Error occurred: $e", false)
+                if (!result) onResult("An Error occurred: $e", false, e)
 //                    e?.cause?.let { it1 -> Result.failure<Boolean>(it1) }
-                else {onResult("Succeeded", true)}
+                else {onResult("Succeeded", true, null)}
             } }
         }
     }
 
-    fun telnetGetResponse(cmd: String, onError: (Exception) -> Unit, onSuccess: (String) -> Unit) {
+    fun telnetCheckConnectivity():Boolean?{
+        viewModelScope.launch(Dispatchers.IO){
+            //TODO: Observe if telnet connection is online.
+        }
+        return true
+    }
+
+    var outputText: String = ""
+    fun telnetGetResponse(cmd: String, onError: (Throwable) -> Unit, onSuccess: (String) -> Unit) {
         viewModelScope.launch  (Dispatchers.IO)  {
             try {
+                if (telnetClient.status == TelnetClient.STATUS_DISCONNECTED) throw IOException("Client not connected!")
                 telnetClient.getResponse(cmd,) {
-                    Log.w("AppViewModel.telnetGetResponse", it)
                     onSuccess(it)
-
+                    outputText = it
                 }
             } catch (e: IOException) {
-                Log.e("AppViewModel.telnetGetResponse", "Error trying to send/receive Command: \n$e\n${e.printStackTrace()}\n RETRYING ONCE.")
-                try {
-                    repository.getTelnetIP()?.let { telnetClient.connect(it, null){result, error ->
-                        Log.w("AppViewModel.telnetGetResponse", "calling onError()")
-                        if (!result) onError(error!!)
-                    } }
-                    telnetClient.getResponse(cmd) {
-                        Log.w("AppViewModel.telnetGetResponse", it)
-                        onSuccess(it)
-                    }
-                } catch (e: IOException) {
-                    onError(e)
-                    Log.e("AppViewModel.telnetGetResponse" , "Unexpected IOException: \n ${e.printStackTrace()} \n$e")
-
-                }
+                Log.e("AppViewModel.telnetGetResponse" , "Unexpected IOException: \n ${e.printStackTrace()} \n$e")
             }
         }
     }
+
 
 
 

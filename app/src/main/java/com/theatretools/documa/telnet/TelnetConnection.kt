@@ -24,13 +24,8 @@ var SERVER_PORT: Int) {
 
     @Throws(IOException::class)
     fun connect () {
-        if (SERVER_IP == "null") {return} // Instance can be created without
-//        try{
-            rawClient.connect(SERVER_IP, SERVER_PORT)
-//        } catch (e: SocketException){
-//            Log.e("TelnetConnection", "Connection Error: ${e.stackTrace}\n$e")
-//            throw e
-//        }
+        if (SERVER_IP == "null") {return}
+        rawClient.connect(SERVER_IP, SERVER_PORT)
     }
     fun connect(ip : String, port: Int?){
         SERVER_PORT = port?: 30000
