@@ -70,7 +70,8 @@ fun MainScreen(
     editCardAction: (presetItem: PresetItem)-> Unit,
     importButtonAction: ()-> Unit,
     utilitiesButtonAction: () -> Unit,
-    telnetButtonAction: () -> Unit
+    telnetButtonAction: () -> Unit,
+    BatchButtonAction: () -> Unit,
 ) {
 
 
@@ -116,7 +117,9 @@ fun MainScreen(
             NavDrawItem("Overview", Icons.Default.Home, {null}),
             NavDrawItem("Import", Icons.Default.Add, {importButtonAction()}),
             NavDrawItem("Utilities", Icons.Default.Create, {utilitiesButtonAction()}),
-            NavDrawItem("TelnetTest", Icons.Default.ExitToApp, {telnetButtonAction()})
+            NavDrawItem("TelnetTest", Icons.Default.ExitToApp, {telnetButtonAction()}),
+            NavDrawItem("Batch Modus", Icons.Default.Menu, {BatchButtonAction()})
+
         )
         val selectedItem = remember { mutableStateOf(navDrawItems[0]) }
         ModalNavigationDrawer(

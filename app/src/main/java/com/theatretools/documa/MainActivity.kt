@@ -14,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Observer
 import com.theatretools.documa.activities.AddPresetActivity
+import com.theatretools.documa.activities.BatchModeActivity
 import com.theatretools.documa.activities.EditPresetActivity
 import com.theatretools.documa.activities.ImportActivity
 import com.theatretools.documa.activities.TelnetTestActivity
@@ -55,7 +56,8 @@ class MainActivity : ComponentActivity() {
                         {preset -> startEditActivity(preset)},
                         {startImportActivity()},
                         {utilitiesScreenActivity()},
-                        {telnetActivity()}
+                        {telnetActivity()},
+                        {batchModeActivity()}
                     )
                 }
             }
@@ -90,6 +92,10 @@ class MainActivity : ComponentActivity() {
     private fun telnetActivity(){
         val telnetIntent = Intent (applicationContext, TelnetTestActivity::class.java)
         startActivity(telnetIntent)
+    }
+    private fun batchModeActivity(){
+        val batchIntent = Intent (applicationContext, BatchModeActivity::class.java)
+        startActivity(batchIntent)
     }
 }
 
