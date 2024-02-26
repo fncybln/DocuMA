@@ -11,22 +11,18 @@ import androidx.lifecycle.viewModelScope
 import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
+import com.theatretools.documa.telnet.TelnetClient
+import com.theatretools.documa.telnet.TelnetConnection
 import com.theatretools.documa.xmlTools.Readout
 import com.theatretools.documa.xmlTools.ReadoutMaExport
-import io.reactivex.Flowable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.lang.Exception
-import java.lang.reflect.Array.setInt
+import java.io.IOException
 
 class AppViewModel(private val repository: DataRepository): ViewModel() {
 
-    // Readout handling
+// READOUT HANDLING
     fun urisToReadout (uriList: List<Uri>, contentResolver: ContentResolver, ) : Job {
 
         return viewModelScope.launch(Dispatchers.IO) {
@@ -71,8 +67,86 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
                 null))
         }
         Result.success(true) // TODO: return indexes of Devices and Presets that got imported
+    }
+
+// TELNET TOOLS
+
+    var outputText: String = ""
+    var outputTextLiveData: MutableLiveData<String> = MutableLiveData("")
+    val telnetConnectionStatus: MutableLiveData<Int> by lazy { MutableLiveData<Int>() }
+
+    val telnetClient by lazy {
+        com.theatretools.documa.telnet.TelnetClient("null", 30000)
+    }
+    fun updateTelnetIP(ip: String){
+        telnetClient.close()
+        repository.updateTelnetIP(ip)
 
     }
+    fun getTelnetIP(): String? {
+        return repository.getTelnetIP()
+    }
+
+    fun telnetConnect(onResult: (  ) -> Unit, onError: (Throwable) -> Unit){
+        viewModelScope.launch  (Dispatchers.IO) {
+            repository.getTelnetIP()?.let {
+                telnetClient.connect(it,
+                    30000,
+                    onResult = {
+                        outputTextLiveData.postValue(it)
+                        Log.i("AppViewModel", "connect Message: \n$it")
+                        onResult()
+                    },
+                    onError = {onError(it)},
+                    onStatusChange = {} )
+            }
+        }
+    }
+
+
+
+    fun telnetCheckConnectivity():Job{
+        return viewModelScope.launch(Dispatchers.IO){
+            var status = TelnetClient.STATUS_DISCONNECTED
+            while (true) {
+                if (status != telnetClient.isConnected()){
+                    Log.v("appViewModel.telnetCheckConnectivity", "connection status has changed!")
+                    status = telnetClient.status
+                    telnetConnectionStatus.postValue(status)
+                }
+            }
+        }
+    }
+
+
+    fun telnetGetResponse(cmd: String, onError: (Throwable) -> Unit, onSuccess: (String) -> Unit, onNotConnected:() -> Unit) {
+        viewModelScope.launch  (Dispatchers.IO)  {
+            try {
+                if (telnetClient.status == TelnetClient.STATUS_DISCONNECTED) onNotConnected()
+                telnetClient.getResponse(cmd,) {
+                    onSuccess(it)
+                    outputText = it
+                    outputTextLiveData.postValue(it)
+                }
+            } catch (e: IOException) {
+                onError(e)
+                outputText = e.toString()
+                outputTextLiveData.postValue (e.toString())
+                Log.e("AppViewModel.telnetGetResponse" , "Unexpected IOException: \n ${e.printStackTrace()} \n$e")
+            }
+        }
+    }
+
+    fun telnetSendCmd(cmd: String, onError: (Throwable) -> Unit) {
+        viewModelScope.launch (Dispatchers.IO) {
+            try {
+                telnetClient.sendCommand(cmd)
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
+    }
+
 
 
 
@@ -108,6 +182,7 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
         return result
     }
 
+// VAR. DATABASE TOOLS
     fun insertPreset(preset: PresetItem) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertPreset(preset)
     }

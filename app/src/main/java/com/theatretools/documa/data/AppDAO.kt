@@ -8,8 +8,10 @@ import androidx.room.Query
 import androidx.room.Update
 import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
+import com.theatretools.documa.dataobjects.Preferences
 import com.theatretools.documa.dataobjects.PresetItem
 import kotlinx.coroutines.flow.Flow
+import javax.crypto.AEADBadTagException
 
 @Dao
 interface AppDAO {
@@ -62,5 +64,14 @@ interface AppDAO {
     suspend fun clearoutDevice()
     @Query ("DELETE FROM DeviceInPreset")
     suspend fun clearoutDevInPreset()
+
+    @Query ("SELECT * FROM Preferences WHERE tag = :tag LIMIT 1")
+    fun getPreference(tag: String): List<Preferences?>?
+
+    @Query ("UPDATE Preferences SET content = :content WHERE tag = :tag")
+    fun setPreference(tag: String, content: String)
+
+    @Query ("INSERT INTO Preferences (tag, content) VALUES (:tag, :content)")
+    fun insertPreference(tag: String, content: String)
 
 }

@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
+import com.theatretools.documa.dataobjects.Preferences
 import com.theatretools.documa.dataobjects.PresetItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -15,7 +16,12 @@ import kotlinx.coroutines.launch
 
 
 //TODO: ExportSchema
-@Database(entities = [PresetItem::class, Device::class, DeviceInPreset::class], version = 4, exportSchema = false)
+@Database(entities = [
+    PresetItem::class,
+    Device::class,
+    DeviceInPreset::class,
+    Preferences::class
+                     ], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun appDao(): AppDAO
 

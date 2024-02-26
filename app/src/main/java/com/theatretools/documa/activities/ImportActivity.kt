@@ -12,7 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.theatretools.documa.MainApplication
-import com.theatretools.documa.activities.ui.theme.ui.theme.DocuMATheme
+import com.theatretools.documa.activities.ui.theme.DocuMATheme
 import com.theatretools.documa.data.AppViewModel
 import com.theatretools.documa.data.ViewModelFactory
 import com.theatretools.documa.uiElements.ImportScreen
