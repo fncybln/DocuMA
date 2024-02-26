@@ -10,17 +10,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Observer
 import com.theatretools.documa.MainApplication
 import com.theatretools.documa.activities.ui.theme.DocuMATheme
 import com.theatretools.documa.data.AppViewModel
 import com.theatretools.documa.data.ViewModelFactory
 import com.theatretools.documa.telnet.TelnetClient
 import com.theatretools.documa.uiElements.TelnetView
+import kotlinx.coroutines.Job
 import java.lang.IndexOutOfBoundsException
 import java.net.SocketException
 
@@ -33,8 +37,22 @@ class TelnetTestActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         var telnet = appViewModel.telnetClient
-        var outputText : String? = appViewModel.
+        appViewModel.telnetCheckConnectivity()
+        var outputText : String? = appViewModel.outputText
 
+        try {
+            appViewModel.telnetConnect(
+                onResult = {},
+                onError = { e ->
+
+//                    throw e
+                }
+            )
+        }
+        catch (e: SocketException) {
+            Log.e("TelnetTestActivity", "${e.printStackTrace()}\n${e.toString()}")
+            outputText = "Connection Failed. Stack trace: \n${e.printStackTrace()} \n $e"
+        }
 
         setContent {
             DocuMATheme {
@@ -43,27 +61,23 @@ class TelnetTestActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TelnetView(outputText,  {
-                        cmd ->
-                         try {
-                            cmd?.let{
-                                appViewModel.telnetGetResponse(it,
-                                    onError = {outputText = it.toString()},
-                                    onSuccess = {outputText = it
-                                    Log.v("TelnetOutput", outputText?:"null")})
-                            }
-                        } catch (e: IndexOutOfBoundsException) {
-                             outputText ="IndexOutOfBoundsException"
+                    TelnetView(appViewModel, this,
+                        outputText,
+                        sendAction = {
+                            cmd ->
+                             try {
+                                cmd?.let{
+                                    appViewModel.telnetGetResponse(it,
+                                        onError = {outputText = it.toString()},
+                                        onSuccess = {outputText = appViewModel.outputText},
+                                        onNotConnected = {outputText = appViewModel.outputText})
+                                }
+                                } catch (e: IndexOutOfBoundsException) {
+                                     outputText ="IndexOutOfBoundsException"
+                                }
+                        }, connectAction = {
+                            Log.v("TelnetTestActivity", "Connection status: ${appViewModel.telnetConnectionStatus.value}")
                         }
-                    },
-                    {
-                        try {
-                            appViewModel.telnetConnect(){msg, result, e -> if (!result) outputText = msg}}
-                        catch (e: SocketException) {
-                            Log.e("TelnetTestActivity", "${e.stackTrace}\n${e.toString()}")
-                            outputText = "Connection Failed. Stack trace: \n${e.stackTrace} \n $e"
-                        }
-                    }
                     )
                 }
             }

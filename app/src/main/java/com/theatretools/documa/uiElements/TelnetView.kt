@@ -1,6 +1,5 @@
 package com.theatretools.documa.uiElements
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -15,23 +14,50 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import com.theatretools.documa.data.AppViewModel
+import com.theatretools.documa.telnet.TelnetClient
 
 @Composable
-fun TelnetView(outputText: String?, sendAction : (cmd: String?)-> Unit, connectAction:()-> Unit) {
+fun TelnetView(appViewModel: AppViewModel,
+               lifecyleOwner: LifecycleOwner,
+               outputText: String?,
+               sendAction : (cmd: String?)-> Unit,
+               connectAction:()-> Unit,
+) {
 
     val scrollState = rememberScrollState()
-    var output by remember { mutableStateOf(outputText) }
+    var output by remember { mutableStateOf("") }
+    val outputObserver = Observer<String>{
+        output = it
+    }
+    appViewModel.outputTextLiveData.observe(lifecyleOwner, outputObserver)
+
+
+    var telnetStatus by remember{ mutableIntStateOf(TelnetClient.STATUS_DISCONNECTED) }
+    val statusObserver = Observer<Int>{
+        telnetStatus = it
+    }
+    appViewModel.telnetConnectionStatus.observe(lifecyleOwner, statusObserver)
+
+
 
     Column (modifier = Modifier.padding(20.dp),) {
+        when (telnetStatus ) {
+            TelnetClient.STATUS_DISCONNECTED -> Text(text = "disconnected :(")
+            TelnetClient.STATUS_CONNECTED -> Text(text = "connected :)")
+            TelnetClient.STATUS_CONNECTING -> Text(text = "connecting...")
+            TelnetClient.STATUS_CONNECTION_ERROR -> Text(text = "connection error.")
+        }
+
         Button ( modifier = Modifier.padding(top = 20.dp), onClick = {connectAction()}){
             Icon(Icons.Filled.KeyboardArrowRight, null)
             Text(text = "Connect to GrandMa2")

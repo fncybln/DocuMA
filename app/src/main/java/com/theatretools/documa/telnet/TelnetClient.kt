@@ -16,8 +16,10 @@ import java.util.Locale
 open class TelnetClient (ip: String, port: Int){
 
     companion object {
-        val STATUS_CONNECTED = 1
-        val STATUS_DISCONNECTED = 0
+        const val STATUS_CONNECTING = 2
+        const val STATUS_CONNECTED = 1
+        const val STATUS_DISCONNECTED = 0
+        const val STATUS_CONNECTION_ERROR = -1
     }
 
     private var outputStream: OutputStream? = null
@@ -28,27 +30,59 @@ open class TelnetClient (ip: String, port: Int){
     private var buf : BufferedReader? = null
 
     var status : Int = STATUS_DISCONNECTED
+    var statusCommandNumber : Int = 0
     init {
         rawConnection = telnetConnection.getClient
         outputStream = telnetConnection.getOutput
         inputStream = telnetConnection.getReader
     }
 
-    fun isConnected():Boolean?{
-        return telnetConnection.isConnected
+    fun isConnected():Int{
+        if (telnetConnection.isConnected == false && status != STATUS_CONNECTING && status != STATUS_CONNECTION_ERROR){
+            status = STATUS_DISCONNECTED
+            return STATUS_DISCONNECTED
+        }
+        else return status
     }
 
 
-    fun connect(ip: String, port: Int?, onResult: (Boolean, Exception?) -> Unit) {
+    fun connect(ip: String,
+                port: Int?,
+                onResult: (String) -> Unit,
+                onError:(Throwable)->Unit,
+                onStatusChange: (Int)-> Unit,
+    ) {
 
         try {
+            status = STATUS_CONNECTING
+            onStatusChange(STATUS_CONNECTING)
             telnetConnection.connect(ip, port)
             Log.v("TelnetClient.connect()", "connecting to telnet Client...")
             Log.v("TelnetClient.connect()", "Connection Status: ${telnetConnection.isConnected}.")
             status = STATUS_CONNECTED
-            onResult(true, null)
+            onStatusChange(STATUS_CONNECTED)
+            statusCommandNumber = 0
+
+
+            buf = BufferedReader(InputStreamReader(rawConnection?.inputStream))
+            var result: String? = ""
+
+            try {
+                var response = StringBuilder()
+                Log.v("TelnetClient", "reading out buffer while connecting...")
+                while (buf!!.ready()) {
+                    response.append( buf!!.read().toChar() )
+                }
+                buf!!.close()
+                onResult(response.toString())
+                //Log.v("TelnetClient", "buffer content: $result")
+            } catch (e: Exception) {
+                Log.e("TelnetClient", "Exception when writing the outputStream: \n${e.printStackTrace()}")
+            }
         } catch (e: Exception) {
-            onResult(false, e)
+            onStatusChange(STATUS_CONNECTION_ERROR)
+            status = STATUS_CONNECTION_ERROR
+            onError(e)
         }
 
     }
@@ -63,6 +97,9 @@ open class TelnetClient (ip: String, port: Int){
     }
 
     fun sendCommand (cmd: String): Boolean {
+        if (statusCommandNumber == 0) {
+            Log.v("TelnetClient", "first command sent to telnet should be checked if the remote is enabled!")
+        }
         if (telnetConnection.isConnected == false) {
             return false
         }
@@ -75,6 +112,7 @@ open class TelnetClient (ip: String, port: Int){
         return try {
             outputStream!!.write(cmdByte, 0 , cmdByte.size)
             outputStream!!.flush()
+            statusCommandNumber++
             true
         } catch (e: Exception) {
             Log.e("TelnetClient", "Exception when writing the outputStream: \n${e.stackTrace}")
@@ -94,15 +132,8 @@ open class TelnetClient (ip: String, port: Int){
         val cmdByte = stringBuilder.toString().toByteArray()
         buf = BufferedReader(InputStreamReader(rawConnection?.inputStream))
         var result: String? = ""
-        var done = false
-
-//        val a: InputStreamReader? = spawnSpy()
-//        val buf = TestBufferedReader(a)
-
-
 
         try {
-
             var response = StringBuilder()
             outputStream?.write(cmdByte, 0, cmdByte.size)
             outputStream?.flush()
@@ -113,17 +144,15 @@ open class TelnetClient (ip: String, port: Int){
             buf!!.close()
             Log.v("TelnetClient", "buffer closed")
             result = response.toString()
-
-            Log.v("TelnetClient", "buffer content: $result")
+            //Log.v("TelnetClient", "buffer content: $result")
         } catch (e: Exception) {
             Log.e("TelnetClient", "Exception when writing the outputStream: \n${e.printStackTrace()}")
         }
-
 //        Log.v("TelnetClient.getResponse()", "Collected Buffer: ${buf.readLine()}")
-
 
         Log.v ("TelnetClient.getResponse()", "Sent: $cmd \n$cmdByte")
         Log.v ("TelnetClient.getResponse()", "Recieved: $result")
+        Log.v ("TelnetClient.getResponse()", "Connection status: ${telnetConnection.isConnected}")
         onResult(result!!)
         return result
 

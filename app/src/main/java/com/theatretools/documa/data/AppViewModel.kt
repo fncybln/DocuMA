@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -70,6 +71,10 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
 
 // TELNET TOOLS
 
+    var outputText: String = ""
+    var outputTextLiveData: MutableLiveData<String> = MutableLiveData("")
+    val telnetConnectionStatus: MutableLiveData<Int> by lazy { MutableLiveData<Int>() }
+
     val telnetClient by lazy {
         com.theatretools.documa.telnet.TelnetClient("null", 30000)
     }
@@ -82,33 +87,51 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
         return repository.getTelnetIP()
     }
 
-    fun telnetConnect(onResult: ( message: String, result: Boolean, error: Throwable? ) -> Unit){
+    fun telnetConnect(onResult: (  ) -> Unit, onError: (Throwable) -> Unit){
         viewModelScope.launch  (Dispatchers.IO) {
-            repository.getTelnetIP()?.let { telnetClient.connect(it, 30000) {result, e ->
-                if (!result) onResult("An Error occurred: $e", false, e)
-//                    e?.cause?.let { it1 -> Result.failure<Boolean>(it1) }
-                else {onResult("Succeeded", true, null)}
-            } }
+            repository.getTelnetIP()?.let {
+                telnetClient.connect(it,
+                    30000,
+                    onResult = {
+                        outputTextLiveData.postValue(it)
+                        Log.i("AppViewModel", "connect Message: \n$it")
+                        onResult()
+                    },
+                    onError = {onError(it)},
+                    onStatusChange = {} )
+            }
         }
     }
 
-    fun telnetCheckConnectivity():Boolean?{
-        viewModelScope.launch(Dispatchers.IO){
-            //TODO: Observe if telnet connection is online.
+
+
+    fun telnetCheckConnectivity():Job{
+        return viewModelScope.launch(Dispatchers.IO){
+            var status = TelnetClient.STATUS_DISCONNECTED
+            while (true) {
+                if (status != telnetClient.isConnected()){
+                    Log.v("appViewModel.telnetCheckConnectivity", "connection status has changed!")
+                    status = telnetClient.status
+                    telnetConnectionStatus.postValue(status)
+                }
+            }
         }
-        return true
     }
 
-    var outputText: String = ""
-    fun telnetGetResponse(cmd: String, onError: (Throwable) -> Unit, onSuccess: (String) -> Unit) {
+
+    fun telnetGetResponse(cmd: String, onError: (Throwable) -> Unit, onSuccess: (String) -> Unit, onNotConnected:() -> Unit) {
         viewModelScope.launch  (Dispatchers.IO)  {
             try {
-                if (telnetClient.status == TelnetClient.STATUS_DISCONNECTED) throw IOException("Client not connected!")
+                if (telnetClient.status == TelnetClient.STATUS_DISCONNECTED) onNotConnected()
                 telnetClient.getResponse(cmd,) {
                     onSuccess(it)
                     outputText = it
+                    outputTextLiveData.postValue(it)
                 }
             } catch (e: IOException) {
+                onError(e)
+                outputText = e.toString()
+                outputTextLiveData.postValue (e.toString())
                 Log.e("AppViewModel.telnetGetResponse" , "Unexpected IOException: \n ${e.printStackTrace()} \n$e")
             }
         }
