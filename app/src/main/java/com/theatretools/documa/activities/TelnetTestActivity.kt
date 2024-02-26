@@ -77,6 +77,16 @@ class TelnetTestActivity : ComponentActivity() {
                                 }
                         }, connectAction = {
                             Log.v("TelnetTestActivity", "Connection status: ${appViewModel.telnetConnectionStatus.value}")
+                        }, sendResponselessAction = {
+                            cmd -> try {
+                                cmd?.let{
+                                    appViewModel.telnetSendCmd(it, onError = {
+                                        outputText = "An Error occurred :("
+                                    })
+                                }
+                        } catch (e: Exception) {
+                            Log.e("TelnetTestActivity", "ERROR: $e \nwhen sending CMD: \n${e.printStackTrace()}")
+                        }
                         }
                     )
                 }

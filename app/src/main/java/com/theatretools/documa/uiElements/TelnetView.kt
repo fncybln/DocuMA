@@ -32,6 +32,7 @@ fun TelnetView(appViewModel: AppViewModel,
                outputText: String?,
                sendAction : (cmd: String?)-> Unit,
                connectAction:()-> Unit,
+               sendResponselessAction: (cmd: String?) -> Unit,
 ) {
 
     val scrollState = rememberScrollState()
@@ -75,7 +76,11 @@ fun TelnetView(appViewModel: AppViewModel,
         )
         Button ( modifier = Modifier.padding(top = 20.dp), onClick = {sendAction(cmdInput)}){
             Icon(Icons.Filled.Check, null)
-            Text(text = "Send")
+            Text(text = "Send with Response")
+        }
+        Button ( modifier = Modifier.padding(top = 20.dp), onClick = {sendResponselessAction(cmdInput)}){
+            Icon(Icons.Filled.Check, null)
+            Text(text = "Send without Response")
         }
 
         Text(output?: "no output", modifier = Modifier.verticalScroll(scrollState))

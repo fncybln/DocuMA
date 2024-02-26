@@ -64,21 +64,21 @@ open class TelnetClient (ip: String, port: Int){
             statusCommandNumber = 0
 
 
-            buf = BufferedReader(InputStreamReader(rawConnection?.inputStream))
-            var result: String? = ""
-
-            try {
-                var response = StringBuilder()
-                Log.v("TelnetClient", "reading out buffer while connecting...")
-                while (buf!!.ready()) {
-                    response.append( buf!!.read().toChar() )
-                }
-                buf!!.close()
-                onResult(response.toString())
-                //Log.v("TelnetClient", "buffer content: $result")
-            } catch (e: Exception) {
-                Log.e("TelnetClient", "Exception when writing the outputStream: \n${e.printStackTrace()}")
-            }
+//            buf = BufferedReader(InputStreamReader(rawConnection?.inputStream))
+//            var result: String? = ""
+//
+//            try {
+//                var response = StringBuilder()
+//                Log.v("TelnetClient", "reading out buffer while connecting...")
+//                while (buf!!.ready()) {
+//                    response.append( buf!!.read().toChar() )
+//                }
+//                buf!!.close()
+//                onResult(response.toString())
+//                //Log.v("TelnetClient", "buffer content: $result")
+//            } catch (e: Exception) {
+//                Log.e("TelnetClient", "Exception when writing the outputStream: \n${e.printStackTrace()}")
+//            }
         } catch (e: Exception) {
             onStatusChange(STATUS_CONNECTION_ERROR)
             status = STATUS_CONNECTION_ERROR
@@ -110,13 +110,15 @@ open class TelnetClient (ip: String, port: Int){
         val cmdByte = stringBuilder.toString().toByteArray()
 
         return try {
+            outputStream = telnetConnection.getOutputStream()
             outputStream!!.write(cmdByte, 0 , cmdByte.size)
             outputStream!!.flush()
             statusCommandNumber++
             true
         } catch (e: Exception) {
-            Log.e("TelnetClient", "Exception when writing the outputStream: \n${e.stackTrace}")
-            false
+            Log.e("TelnetClient", "Exception when writing the outputStream: \n${e.printStackTrace()}")
+            throw e
+
         }
     }
 

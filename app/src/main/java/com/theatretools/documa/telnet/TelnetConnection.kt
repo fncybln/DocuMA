@@ -22,6 +22,10 @@ var SERVER_PORT: Int) {
     var isConnected: Boolean? = rawClient.isConnected
     var getClient = rawClient
 
+    fun getOutputStream() : OutputStream{
+        return rawClient.outputStream
+    }
+
     @Throws(IOException::class)
     fun connect () {
         if (SERVER_IP == "null") {return}

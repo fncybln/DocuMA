@@ -137,6 +137,16 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
         }
     }
 
+    fun telnetSendCmd(cmd: String, onError: (Throwable) -> Unit) {
+        viewModelScope.launch (Dispatchers.IO) {
+            try {
+                telnetClient.sendCommand(cmd)
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
+    }
+
 
 
 
