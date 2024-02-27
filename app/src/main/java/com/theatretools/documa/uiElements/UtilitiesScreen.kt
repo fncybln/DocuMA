@@ -26,11 +26,27 @@ import androidx.compose.ui.unit.dp
 fun UtilitiesScreen(
     modifier: Modifier,
     ip: String?,
+    showfileName: String,
     clearoutDatabase: () -> Unit,
-    updateIP: (ip: String) -> Unit) {
+    updateIP: (ip: String) -> Unit,
+    updateShowfile: (name: String) -> Unit) {
+    var showfile by remember { mutableStateOf(showfileName) }
     var telnetIP by remember { mutableStateOf(ip?:"not set") }
 
     Column {
+        TextField(
+            value = showfile,
+            onValueChange = { showfile = it },
+            label = {Text(text = AnnotatedString("Telnet IP")) },
+            maxLines = 1,
+            //textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(20.dp),
+            keyboardOptions = KeyboardOptions(),
+        )
+        Button(onClick ={updateShowfile(showfile)}) {
+            Text("Save")
+        }
+        Spacer(Modifier.height(8.dp))
         TextField(
             value = telnetIP,
             onValueChange = { telnetIP = it },
@@ -43,7 +59,6 @@ fun UtilitiesScreen(
         Button(onClick ={updateIP(telnetIP)}) {
             Text("Save")
         }
-
         Spacer(Modifier.height(8.dp))
         Text("== DANGER ZONE ==")
         Button(

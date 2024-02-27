@@ -22,6 +22,7 @@ class UtilitiesActivities : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         var telnetIP = try {appViewModel.getTelnetIP()} catch (e: IndexOutOfBoundsException) {null}
+        var showfileName = appViewModel.getShowfileName()
 //        if (telnetIP != null) {
 //            appViewModel.telnetClient.connect(telnetIP, null)
 //        }
@@ -33,13 +34,15 @@ class UtilitiesActivities : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    UtilitiesScreen(Modifier.padding(20.dp), telnetIP,
+                    UtilitiesScreen(Modifier.padding(20.dp), telnetIP, showfileName,
                         {
                             appViewModel.clearoutDatabase()
                         },
                         {
                             appViewModel.updateTelnetIP(it)
 
+                        }, {
+                            appViewModel.updateShowfileName(it)
                         })
 
                 }
