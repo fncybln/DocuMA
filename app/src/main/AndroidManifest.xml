@@ -18,6 +18,11 @@
         android:theme="@style/Theme.DocuMA"
         tools:targetApi="31">
         <activity
+            android:name=".activities.BatchActivity"
+            android:exported="false"
+            android:label="@string/title_activity_batch"
+            android:theme="@style/Theme.DocuMA" />
+        <activity
             android:name=".activities.BatchModeActivity"
             android:exported="false"
             android:label="@string/title_activity_batch_mode"

@@ -24,20 +24,26 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun UtilitiesScreen(
-    modifier: Modifier,
-    ip: String?,
-    showfileName: String,
-    clearoutDatabase: () -> Unit,
-    updateIP: (ip: String) -> Unit,
-    updateShowfile: (name: String) -> Unit) {
+        modifier: Modifier,
+        ip: String?,
+        showfileName: String,
+        user : String,
+        password : String,
+        clearoutDatabase: () -> Unit,
+        updateIP: (ip: String) -> Unit,
+        updateShowfile: (name: String) -> Unit,
+        updateLogin: (usr: String, psw: String) -> Unit, )
+    {
     var showfile by remember { mutableStateOf(showfileName) }
+    var username by remember { mutableStateOf(user?: "not set") }
+    var psw by remember { mutableStateOf(password?: "not set" ) }
     var telnetIP by remember { mutableStateOf(ip?:"not set") }
 
     Column {
         TextField(
             value = showfile,
             onValueChange = { showfile = it },
-            label = {Text(text = AnnotatedString("Telnet IP")) },
+            label = {Text(text = AnnotatedString("Showfile name")) },
             maxLines = 1,
             //textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
             modifier = Modifier.padding(20.dp),
@@ -60,13 +66,36 @@ fun UtilitiesScreen(
             Text("Save")
         }
         Spacer(Modifier.height(8.dp))
-        Text("== DANGER ZONE ==")
-        Button(
-            onClick = { clearoutDatabase() },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-        ) {
-            Icon(Icons.Default.Clear, null)
-            Text("Clearout Database")
+        Text(text = "GrandMA Login data:")
+        TextField(
+            value = username,
+            onValueChange = { username = it },
+            label = {Text(text = AnnotatedString("username")) },
+            maxLines = 1,
+            //textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(20.dp),
+            keyboardOptions = KeyboardOptions(),
+        )
+        TextField(
+            value = psw,
+            onValueChange = { psw = it },
+            label = {Text(text = AnnotatedString("password")) },
+            maxLines = 1,
+            //textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(20.dp),
+            keyboardOptions = KeyboardOptions(),
+        )
+        Button(onClick ={updateLogin (username, psw)}) {
+            Text("Save")
         }
+        Spacer(Modifier.height(8.dp))
+//        Text("== DANGER ZONE ==")
+//        Button(
+//            onClick = { clearoutDatabase() },
+//            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+//        ) {
+//            Icon(Icons.Default.Clear, null)
+//            Text("Clearout Database")
+//        }
     }
 }

@@ -22,6 +22,7 @@ import java.io.IOException
 
 class AppViewModel(private val repository: DataRepository): ViewModel() {
 
+
 // READOUT HANDLING
     fun urisToReadout (uriList: List<Uri>, contentResolver: ContentResolver, ) : Job {
 
@@ -147,8 +148,52 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
         }
     }
 
+// BATCH TOOLS
+
+    fun getShowfileName(): String {
+        return repository.getPreference("showfileName")?:"My Showfile"
+    }
+    fun updateShowfileName (name: String ){
+        return repository.updatePreference("showfileName", name)
+    }
+
+    fun getLastDevInPresetPosition(): Int? {
+        var lastPos = repository.getPreference("lastDevInPresetPostion")?.toInt()
+        return if (lastPos == null) null
+        else lastPos
+    }
+    fun updateLastDevInPresetPosition(id: Int) {
+        repository.updatePreference("lastDevInPresetPostion", id.toString())
+    }
+
+    fun getDevInPresetOrdered(onResult: (List<DeviceInPreset>, Int) -> Unit): Unit  {
+        viewModelScope.launch (Dispatchers.IO){
+            var list = repository.getAllDevInPresetOrdered()
+            var indexOfLast = list.indexOf(getLastDevInPresetPosition()?.let { repository.getDeviceInPreset(it) })
+            onResult(list, indexOfLast)
+        }
+    }
+
+    fun getDeviceFromDevInPreset(deviceInPreset: DeviceInPreset?): Device?{
+        if (deviceInPreset!= null)return deviceInPreset.id?.let { repository.getDeviceFromDevInPreset(it) }
+        return null
+    }
+    fun getPresetFromDevInPreset(deviceInPreset: DeviceInPreset?): PresetItem? {
+        if (deviceInPreset!= null)return deviceInPreset.id?.let { repository.getPresetFromDevInPreset(it) }
+        return null
+    }
 
 
+    fun getLoginData () : String {
+        return "\"${repository.getPreference("LoginUsername")}\" \"${repository.getPreference("LoginPassword")}\""
+    }
+    fun getLoginPsw (): String? = repository.getPreference("LoginPassword")
+    fun getLoginUser (): String? = repository.getPreference("LoginUsername")
+
+    fun updateLoginData (user: String, psw: String) {
+        repository.updatePreference("LoginUsername", user)
+        repository.updatePreference("LoginPassword", psw)
+    }
 
 // DEPRECATED?
     fun insertPresetAndReferences(preset: PresetItem, devices: List<Device?>, parentJob: Job): Job {

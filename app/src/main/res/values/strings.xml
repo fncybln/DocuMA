@@ -52,4 +52,5 @@
     <string name="title_activity_utilites_activities">UtilitesActivities</string>
     <string name="title_activity_telnet_test">telnetTestActivity</string>
     <string name="title_activity_batch_mode">BatchModeActivity</string>
+    <string name="title_activity_batch">BatchActivity</string>
 </resources>

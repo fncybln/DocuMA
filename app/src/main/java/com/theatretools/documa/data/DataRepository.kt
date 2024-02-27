@@ -6,7 +6,6 @@ import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 
 class DataRepository(private val appDAO: AppDAO) {
     fun loadAllPresetItems(): Flow<List<PresetItem>> {
@@ -15,6 +14,10 @@ class DataRepository(private val appDAO: AppDAO) {
 
     fun loadAllDeviceItems(): Flow<List<Device>> {
         return appDAO.loadAllDevices()
+    }
+
+    fun getAllDevInPresetOrdered(): List<DeviceInPreset> {
+        return appDAO.AllDevInPresetsOrdered()
     }
 
         @WorkerThread
@@ -29,6 +32,17 @@ class DataRepository(private val appDAO: AppDAO) {
     @WorkerThread
     fun getDevice ( id: Int){
         appDAO.getDeviceByID(id)
+    }
+
+    fun getDeviceInPreset (id: Int): DeviceInPreset {
+        return appDAO.getDeviceInPresetByID(id)[0]
+    }
+
+    fun getDeviceFromDevInPreset(id: Int): Device{
+        return appDAO.getDeviceFromDevInPreset(id)[0]
+    }
+    fun getPresetFromDevInPreset(id: Int): PresetItem{
+        return appDAO.getPresetFromDevInPreset(id)[0]
     }
 
     @WorkerThread
@@ -83,6 +97,19 @@ class DataRepository(private val appDAO: AppDAO) {
             appDAO.insertPreference("telnet_IP", ip)
         }
     }
+    fun updatePreference(tag: String, content: String) {
+        if(appDAO.getPreference((tag))?.size != 0) {
+            appDAO.setPreference(tag, content)
+        } else {
+            appDAO.insertPreference(tag, content)
+        }
+    }
 
-
+    fun getPreference(tag: String)  : String? {
+        try {
+            return appDAO.getPreference(tag)?.get(0)?.content
+        } catch (e: IndexOutOfBoundsException) {
+            return null
+        }
+    }
 }

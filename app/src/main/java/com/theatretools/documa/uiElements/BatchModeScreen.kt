@@ -65,7 +65,7 @@ var paddingLessText = TextStyle(
 fun BatchModeScreen(
     modifier: Modifier = Modifier,
     onPhotoClick: () -> Unit,
-    currentPreset: PresetItem,
+    currentPreset: PresetItem?,
     backwardsFixtureID: String,
     forwardsFixtureID: String,
     currentFixtureID: String,
@@ -91,7 +91,7 @@ fun BatchModeScreen(
         }
         Box (modifier = modifier.fillMaxWidth(1F)) {
             Column (modifier.align(Alignment.TopCenter)) {
-                PresetDisplay(presetID = currentPreset.presetID.toString(), presetName = currentPreset.presetName?:"null")
+                PresetDisplay(presetID = currentPreset?.presetID.toString(), presetName = currentPreset?.presetName?:"null")
                 Row (
                     modifier
                         .height(IntrinsicSize.Max)

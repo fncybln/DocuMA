@@ -11,7 +11,6 @@ import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.Preferences
 import com.theatretools.documa.dataobjects.PresetItem
 import kotlinx.coroutines.flow.Flow
-import javax.crypto.AEADBadTagException
 
 @Dao
 interface AppDAO {
@@ -21,6 +20,11 @@ interface AppDAO {
     //Not necessary
     @Query("SELECT * FROM DeviceInPreset")
     fun loadAllDeviceInPreset(): Flow<List<DeviceInPreset>>
+
+    @Query("SELECT * FROM DeviceInPreset ORDER BY (" +
+            "SELECT presetId FROM Preset_Items WHERE Preset_Items.id = DeviceInPreset.presetId) ASC, " +
+            "(SELECT fix FROM Device WHERE Device.id = DeviceInPreset.deviceId) ASC ")
+    fun AllDevInPresetsOrdered(): List <DeviceInPreset>
 
     @Query("SELECT * FROM Device ORDER BY fix ASC")
     fun loadAllDevices(): Flow<List<Device>>
@@ -39,6 +43,12 @@ interface AppDAO {
 
     @Query("SELECT * FROM Device WHERE id = :id LIMIT 1")
     fun getDeviceByID(id: Int): Device?
+
+    @Query ("SELECT * FROM Device WHERE id = (SELECT deviceId FROM DeviceInPreset WHERE id = :DevInPresetId)")
+    fun getDeviceFromDevInPreset(DevInPresetId: Int): List<Device>
+
+    @Query("SELECT * FROM Preset_Items WHERE id = (SELECT presetId FROM DeviceInPreset WHERE id = :DevInPresetId)")
+    fun getPresetFromDevInPreset(DevInPresetId: Int): List<PresetItem>
 
     @Query("SELECT * FROM preset_items WHERE id = :id LIMIT 1")
     fun getPresetItemByID(id: Int): PresetItem
@@ -73,5 +83,8 @@ interface AppDAO {
 
     @Query ("INSERT INTO Preferences (tag, content) VALUES (:tag, :content)")
     fun insertPreference(tag: String, content: String)
+
+    @Query("SELECT * FROM DeviceInPreset WHERE id = :id")
+    abstract fun getDeviceInPresetByID(id: Int): List<DeviceInPreset>
 
 }

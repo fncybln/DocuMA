@@ -25,10 +25,7 @@ import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
 import com.theatretools.documa.uiElements.BatchModeScreen
 
-class BatchModeActivity : ComponentActivity() {
-    private val appViewModel: AppViewModel by viewModels {
-        ViewModelFactory((application as MainApplication).repository)
-    }
+class BatchActivity : ComponentActivity() {
 
     val  photoActivityResult = registerForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
@@ -42,33 +39,33 @@ class BatchModeActivity : ComponentActivity() {
     // Database tools
 
     var OrderOfDeviceInPreset: List<DeviceInPreset>?  = null
-    val lastPosition = appViewModel.getLastDevInPresetPosition()
+    var lastPosition : Int? = null
     var currentPosition = lastPosition?:0
     var currentPreset = 0
     var currentFixture = 0
 
 
-    private fun nextFixture(forward: Boolean = true ){
+    private fun nextFixture(forward: Boolean = true , appViewModel: AppViewModel){
         when (forward) {
             true -> currentPosition++
             false -> currentPosition--
         }
         appViewModel.updateLastDevInPresetPosition(currentPosition)
-        callCurrentTelnet()
+        callCurrentTelnet(appViewModel)
     }
-    private fun nextPreset(forward: Boolean = true) {
+    private fun nextPreset(forward: Boolean = true, appViewModel: AppViewModel) {
         var currentPreset = appViewModel.getPresetFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition))?.id
-         do {
+        do {
             when (forward) {
                 true -> currentPosition++
                 false -> currentPosition--
             }
         } while (currentPreset == appViewModel.getPresetFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition))?.id)
         appViewModel.updateLastDevInPresetPosition(currentPosition)
-        callCurrentTelnet()
+        callCurrentTelnet(appViewModel)
     }
 
-    private fun callCurrentTelnet(){
+    private fun callCurrentTelnet(appViewModel: AppViewModel){
         var fix = appViewModel.getDeviceFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition))?.fix
         var preset = appViewModel.getPresetFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition))?.presetID
         if(fix != null && preset != null ){
@@ -78,25 +75,35 @@ class BatchModeActivity : ComponentActivity() {
 
 
     }
-    private fun callTelnetTools(){
+    private fun callTelnetTools(appViewModel: AppViewModel){
         appViewModel.telnetSendCmd("CLEARALL"){}
         appViewModel.telnetSendCmd("HIGHLIGHT ON"){}
     }
 
-    private fun callTelnetLogin() {
+    private fun callTelnetLogin(appViewModel: AppViewModel) {
         appViewModel.telnetSendCmd(appViewModel.getLoginData()) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val appViewModel: AppViewModel by viewModels {
+            ViewModelFactory((application as MainApplication).repository)
+        }
+        lastPosition = appViewModel.getLastDevInPresetPosition()
+
         appViewModel.getDevInPresetOrdered {list, index ->
             OrderOfDeviceInPreset = list
             currentPosition = index
         }
         appViewModel.telnetConnect({},{})
         appViewModel.telnetCheckConnectivity()
-        callTelnetLogin(); callTelnetTools(); callCurrentTelnet()
-
+        callTelnetLogin(appViewModel); callTelnetTools(appViewModel)
+        try {
+            callCurrentTelnet(appViewModel)
+        } catch (e: NullPointerException) {
+            currentPosition = 0
+            callCurrentTelnet(appViewModel)
+        }
         setContent {
             DocuMATheme {
                 // A surface container using the 'background' color from the theme
@@ -112,18 +119,18 @@ class BatchModeActivity : ComponentActivity() {
                         ) },
                         currentPreset = appViewModel.getPresetFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition)),
                         backwardsFixtureID = try {appViewModel.getDeviceFromDevInPreset(
-                            OrderOfDeviceInPreset?.get(currentPosition-1)
+                            OrderOfDeviceInPreset?.get(if (currentPosition >0) {currentPosition-1} else{currentPosition})
                         )?.fix.toString()} catch (e: IndexOutOfBoundsException) {"no more"},
                         forwardsFixtureID = try {appViewModel.getDeviceFromDevInPreset(
                             OrderOfDeviceInPreset?.get(currentPosition+1)
                         )?.fix.toString()} catch (e : IndexOutOfBoundsException) {"no more"},
                         currentFixtureID = appViewModel.getDeviceFromDevInPreset(
                             OrderOfDeviceInPreset?.get(currentPosition))?.fix.toString(),
-                        onPresetBackwards = {nextPreset(false)},
-                        onPresetForwards = {nextPreset(true)},
-                        onFixtureBackwards = { nextFixture(false) },
-                        onFixtureForwards = { nextFixture(true) },
-                        onTelnetResend = {callTelnetLogin(); callTelnetTools(); callCurrentTelnet()},
+                        onPresetBackwards = {nextPreset(false, appViewModel)},
+                        onPresetForwards = {nextPreset(true, appViewModel)},
+                        onFixtureBackwards = { nextFixture(false, appViewModel) },
+                        onFixtureForwards = { nextFixture(true, appViewModel) },
+                        onTelnetResend = {callTelnetLogin(appViewModel); callTelnetTools(appViewModel); callCurrentTelnet(appViewModel)},
                         appViewModel = appViewModel,
                         lifecyleOwner = this)
                 }
