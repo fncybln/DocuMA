@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.lang.IndexOutOfBoundsException
 
 class AppViewModel(private val repository: DataRepository): ViewModel() {
 
@@ -157,9 +158,9 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
         return repository.updatePreference("showfileName", name)
     }
 
-    fun getLastDevInPresetPosition(): Int? {
+    fun getLastDevInPresetPosition(): Int {
         var lastPos = repository.getPreference("lastDevInPresetPostion")?.toInt()
-        return if (lastPos == null) null
+        return if (lastPos == null) 0
         else lastPos
     }
     fun updateLastDevInPresetPosition(id: Int) {
@@ -169,7 +170,7 @@ class AppViewModel(private val repository: DataRepository): ViewModel() {
     fun getDevInPresetOrdered(onResult: (List<DeviceInPreset>, Int) -> Unit): Unit  {
         viewModelScope.launch (Dispatchers.IO){
             var list = repository.getAllDevInPresetOrdered()
-            var indexOfLast = list.indexOf(getLastDevInPresetPosition()?.let { repository.getDeviceInPreset(it) })
+            var indexOfLast = try {list.indexOf(getLastDevInPresetPosition()?.let { repository.getDeviceInPreset(it) })} catch(e: IndexOutOfBoundsException) {0}
             onResult(list, indexOfLast)
         }
     }

@@ -101,14 +101,14 @@ fun BatchModeScreen(
                             .fillMaxHeight()
                             .fillMaxWidth(0.3F),
                         direction = false,
-                        onClick = { onPresetBackwards })
+                        onClick = { onPresetBackwards() })
 //                    Spacer(modifier = Modifier.width(10.dp))
                     PresNav(
                         modifier
                             .fillMaxHeight()
                             .fillMaxWidth(1F),
                         direction = true,
-                        onClick = {onPresetForwards})
+                        onClick = {onPresetForwards()})
                 }
                 Row (
                     modifier
@@ -118,12 +118,12 @@ fun BatchModeScreen(
                         Modifier
                             .fillMaxHeight(1F)
                             .width(80.dp), false, backwardsFixtureID
-                    ) { onFixtureBackwards }
+                    ) { onFixtureBackwards() }
                     FixNav(
                         Modifier
                             .fillMaxHeight(1F)
                             .width(80.dp), true, forwardsFixtureID
-                    ) { onFixtureForwards }
+                    ) { onFixtureForwards() }
                     FixDisplay(
                         Modifier
                             .fillMaxHeight(1F)
@@ -146,7 +146,7 @@ fun BatchModeScreen(
                         Modifier
                             .fillMaxHeight(1F)
                             .fillMaxWidth(1F),
-                        onClick = onTelnetResend)
+                        onClick = { onTelnetResend() })
                 }
 
             }

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +25,10 @@ import com.theatretools.documa.dataobjects.Device
 import com.theatretools.documa.dataobjects.DeviceInPreset
 import com.theatretools.documa.dataobjects.PresetItem
 import com.theatretools.documa.uiElements.BatchModeScreen
+
+
+//TODO: check if database is empty to avoid crash lol
+
 
 class BatchActivity : ComponentActivity() {
 
@@ -69,6 +74,7 @@ class BatchActivity : ComponentActivity() {
         var fix = appViewModel.getDeviceFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition))?.fix
         var preset = appViewModel.getPresetFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition))?.presetID
         if(fix != null && preset != null ){
+            Log.v("BatchActivity.callCurrentTelnet()", "> CLEARALL \n> FIXTURE $fix AT PRESET 0.$preset")
             appViewModel.telnetSendCmd("CLEARALL") {}
             appViewModel.telnetSendCmd("FIXTURE $fix AT PRESET 0.$preset") {}
         }
@@ -76,12 +82,14 @@ class BatchActivity : ComponentActivity() {
 
     }
     private fun callTelnetTools(appViewModel: AppViewModel){
+        Log.v("BatchActivity.callCurrentTelnet()", "> CLEARALL \n> HIGHLIGHT ON")
         appViewModel.telnetSendCmd("CLEARALL"){}
         appViewModel.telnetSendCmd("HIGHLIGHT ON"){}
     }
 
     private fun callTelnetLogin(appViewModel: AppViewModel) {
-        appViewModel.telnetSendCmd(appViewModel.getLoginData()) {}
+        Log.v("BatchActivity.callCurrentTelnet()", "LOGIN \"${appViewModel.getLoginUser()}\" \"${appViewModel.getLoginPsw()}\"")
+        appViewModel.telnetSendCmd("LOGIN \"${appViewModel.getLoginUser()}\" \"${appViewModel.getLoginPsw()}\"") {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,10 +127,10 @@ class BatchActivity : ComponentActivity() {
                         ) },
                         currentPreset = appViewModel.getPresetFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition)),
                         backwardsFixtureID = try {appViewModel.getDeviceFromDevInPreset(
-                            OrderOfDeviceInPreset?.get(if (currentPosition >0) {currentPosition-1} else{currentPosition})
+                            OrderOfDeviceInPreset?.get(currentPosition.apply{ this-1})
                         )?.fix.toString()} catch (e: IndexOutOfBoundsException) {"no more"},
                         forwardsFixtureID = try {appViewModel.getDeviceFromDevInPreset(
-                            OrderOfDeviceInPreset?.get(currentPosition+1)
+                            OrderOfDeviceInPreset?.get(currentPosition.apply{ this+1})
                         )?.fix.toString()} catch (e : IndexOutOfBoundsException) {"no more"},
                         currentFixtureID = appViewModel.getDeviceFromDevInPreset(
                             OrderOfDeviceInPreset?.get(currentPosition))?.fix.toString(),
@@ -130,7 +138,11 @@ class BatchActivity : ComponentActivity() {
                         onPresetForwards = {nextPreset(true, appViewModel)},
                         onFixtureBackwards = { nextFixture(false, appViewModel) },
                         onFixtureForwards = { nextFixture(true, appViewModel) },
-                        onTelnetResend = {callTelnetLogin(appViewModel); callTelnetTools(appViewModel); callCurrentTelnet(appViewModel)},
+                        onTelnetResend = {callTelnetLogin(appViewModel)
+                            callTelnetTools(appViewModel)
+                            callCurrentTelnet(appViewModel)
+                            Log.v("BatchActivity.resend", "resent cmd")
+                                         },
                         appViewModel = appViewModel,
                         lifecyleOwner = this)
                 }

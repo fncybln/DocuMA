@@ -112,10 +112,10 @@ class BatchModeActivity : ComponentActivity() {
                         ) },
                         currentPreset = appViewModel.getPresetFromDevInPreset(OrderOfDeviceInPreset?.get(currentPosition)),
                         backwardsFixtureID = try {appViewModel.getDeviceFromDevInPreset(
-                            OrderOfDeviceInPreset?.get(currentPosition-1)
+                            OrderOfDeviceInPreset?.get(currentPosition.apply{ this-1})
                         )?.fix.toString()} catch (e: IndexOutOfBoundsException) {"no more"},
                         forwardsFixtureID = try {appViewModel.getDeviceFromDevInPreset(
-                            OrderOfDeviceInPreset?.get(currentPosition+1)
+                            OrderOfDeviceInPreset?.get(currentPosition.apply{ this+1})
                         )?.fix.toString()} catch (e : IndexOutOfBoundsException) {"no more"},
                         currentFixtureID = appViewModel.getDeviceFromDevInPreset(
                             OrderOfDeviceInPreset?.get(currentPosition))?.fix.toString(),
